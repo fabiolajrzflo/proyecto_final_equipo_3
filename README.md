@@ -9,7 +9,7 @@ Candy del Carmen Cortes Castro
 
 Clasificación binaria: estimar, **al momento de la compra**, la probabilidad de que un pedido de Olist llegue después de la fecha prometida.
 
-## Flujo (diagrama del profesor)
+## Flujo
 
 ```
 DATA → 01 Limpieza → 02 Exploración → 03 Variables → 04 Split temporal (5 folds + purga + test aparte)
