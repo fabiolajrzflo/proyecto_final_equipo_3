@@ -34,11 +34,12 @@ src/                      código reutilizable que importan los notebooks
   modelos.py · red_neuronal.py · evaluacion.py · viz.py
 notebooks/
   01_limpieza … 06_seleccion_y_test_final   (correr en orden)
+  07_estadistica_y_costo_del_error          IC, pruebas de hipótesis, costo del error y reglas simples
 modelos/<modelo>/         variables, hiperparámetros, CV por fold, predicciones fuera de fold, modelo
 reportes/
   figuras/ · metricas/    salidas de los notebooks
   presentacion/presentacion.html   presentación (abrir en el navegador)
-  articulo/reporte_tecnico.pdf     reporte técnico (artículo corto)
+  articulo/reporte_tecnico.pdf     reporte técnico (artículo con las 8 secciones de la rúbrica)
   build_presentacion.py · build_articulo.py   regeneran ambos con los resultados actuales
 ```
 
@@ -52,7 +53,7 @@ python3 -m venv .venv
 cd notebooks
 for nb in 01_limpieza 02_eda 03_feature_engineering 04_preparacion_dataset \
           05a_modelo_logistica 05b_modelo_random_forest 05c_modelo_xgboost \
-          05d_modelo_red_neuronal 06_seleccion_y_test_final; do
+          05d_modelo_red_neuronal 06_seleccion_y_test_final 07_estadistica_y_costo_del_error; do
   ../.venv/bin/jupyter nbconvert --to notebook --execute --inplace $nb.ipynb
 done
 cd ..

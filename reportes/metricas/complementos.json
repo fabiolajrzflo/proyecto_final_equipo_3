@@ -1,0 +1,389 @@
+{
+  "descriptiva": [
+    {
+      "variable": "estimated_delivery_days",
+      "Variable": "Días de entrega prometidos",
+      "Mediana a tiempo": 23.626898148148147,
+      "Mediana tardío": 23.45962962962963,
+      "Media a tiempo": 24.49636673745362,
+      "Media tardío": 24.12635323920209,
+      "AUC univariado": 0.4926680132019564
+    },
+    {
+      "variable": "min_dias_limite_envio",
+      "Variable": "Plazo mínimo del vendedor para despachar (días)",
+      "Mediana a tiempo": 6.0145486111111115,
+      "Mediana tardío": 6.014149305555556,
+      "Media a tiempo": 6.882098910354919,
+      "Media tardío": 6.738384965756469,
+      "AUC univariado": 0.4935612626622493
+    },
+    {
+      "variable": "avg_distance_km",
+      "Variable": "Distancia vendedor–cliente (km)",
+      "Mediana a tiempo": 436.6910763239239,
+      "Mediana tardío": 563.847071153959,
+      "Media a tiempo": 597.0303874120946,
+      "Media tardío": 802.7230480061781,
+      "AUC univariado": 0.5987552152213778
+    },
+    {
+      "variable": "total_price",
+      "Variable": "Precio total (R$)",
+      "Mediana a tiempo": 84.99,
+      "Mediana tardío": 92.0,
+      "Media a tiempo": 134.8346200045847,
+      "Media tardío": 150.97393279172823,
+      "AUC univariado": 0.5305841000557681
+    },
+    {
+      "variable": "total_freight",
+      "Variable": "Flete total (R$)",
+      "Mediana a tiempo": 16.7,
+      "Mediana tardío": 18.23,
+      "Media a tiempo": 21.99021211889661,
+      "Media tardío": 25.707485228951253,
+      "AUC univariado": 0.5898147738478734
+    },
+    {
+      "variable": "avg_product_weight",
+      "Variable": "Peso promedio del producto (g)",
+      "Mediana a tiempo": 700.0,
+      "Mediana tardío": 800.0,
+      "Media a tiempo": 2142.899488369643,
+      "Media tardío": 2526.725410599986,
+      "AUC univariado": 0.5217963708906724
+    },
+    {
+      "variable": "seller_late_rate",
+      "Variable": "Historial de retrasos del vendedor",
+      "Mediana a tiempo": 0.03413793103448276,
+      "Mediana tardío": 0.04235381225475643,
+      "Media a tiempo": 0.041463684605550624,
+      "Media tardío": 0.04967112210168599,
+      "AUC univariado": 0.5899958552010582
+    },
+    {
+      "variable": "ruta_late_rate",
+      "Variable": "Historial de retrasos de la ruta",
+      "Mediana a tiempo": 0.03426671677120737,
+      "Mediana tardío": 0.04219455817694844,
+      "Media a tiempo": 0.0402508374136164,
+      "Media tardío": 0.058561165130006865,
+      "AUC univariado": 0.6481137750554492
+    },
+    {
+      "variable": "global_late_30d",
+      "Variable": "Tasa de retraso del sistema, 30 días",
+      "Mediana a tiempo": 0.044140258492999886,
+      "Mediana tardío": 0.05017853699864473,
+      "Media a tiempo": 0.06785191033843094,
+      "Media tardío": 0.06872424463739271,
+      "AUC univariado": 0.5666135753917736
+    },
+    {
+      "variable": "estado_late_30d",
+      "Variable": "Tasa de retraso hacia el estado, 30 días",
+      "Mediana a tiempo": 0.035807607151948695,
+      "Mediana tardío": 0.05884825393521401,
+      "Media a tiempo": 0.06217698895306766,
+      "Media tardío": 0.08703853392950091,
+      "AUC univariado": 0.6297914090217056
+    },
+    {
+      "variable": "pedidos_ult_7d",
+      "Variable": "Pedidos de los últimos 7 días",
+      "Mediana a tiempo": 1161.0,
+      "Mediana tardío": 1632.0,
+      "Media a tiempo": 1285.495652173913,
+      "Media tardío": 1592.3607828655834,
+      "AUC univariado": 0.6645358386703957
+    }
+  ],
+  "n_train_descriptiva": 70851,
+  "tasas": {
+    "global": {
+      "p": 0.06788910718183802,
+      "li": 0.06631668377198402,
+      "ls": 0.06949603896365644,
+      "k": 6531,
+      "n": 96201
+    },
+    "train": {
+      "p": 0.07644211090880863,
+      "li": 0.07450852137376514,
+      "ls": 0.07842162758676265,
+      "k": 5416,
+      "n": 70851
+    },
+    "test": {
+      "p": 0.04398422090729783,
+      "li": 0.04152826447299683,
+      "ls": 0.046578362781264676,
+      "k": 1115,
+      "n": 25350
+    }
+  },
+  "drift": {
+    "chi2": 310.3132234347919,
+    "p": 1.866341806994532e-69
+  },
+  "reviews": {
+    "n_a_tiempo": 89180,
+    "n_tardio": 6378,
+    "media_a": 4.2913676459594825,
+    "media_t": 2.27195045468799,
+    "dif": -2.0194171912714927,
+    "dif_li": -2.058703200374469,
+    "dif_ls": -1.9801311821685164,
+    "p_welch": 0.0,
+    "p_mw": 0.0,
+    "p12_a": 0.09211706660686253,
+    "p12_t": 0.623549702100972,
+    "dp": 0.5314326354941095,
+    "dp_li": 0.5193917367311981,
+    "dp_ls": 0.5434735342570208,
+    "p_chi": 0.0
+  },
+  "carga": {
+    "variable": "estado_late_30d",
+    "tabla": [
+      {
+        "Cuartil": "Q1 (baja)",
+        "Rango": "0.000–0.026",
+        "Pedidos": 17720,
+        "% tardíos": 0.04108352144469526,
+        "IC inf": 0.03825920581144491,
+        "IC sup": 0.04410676785561129
+      },
+      {
+        "Cuartil": "Q2",
+        "Rango": "0.026–0.037",
+        "Pedidos": 17706,
+        "% tardíos": 0.050491358861402914,
+        "IC inf": 0.04736261848704646,
+        "IC sup": 0.05381510594609389
+      },
+      {
+        "Cuartil": "Q3",
+        "Rango": "0.037–0.072",
+        "Pedidos": 17713,
+        "% tardíos": 0.09213571952803026,
+        "IC inf": 0.0879645133817369,
+        "IC sup": 0.09648379623742244
+      },
+      {
+        "Cuartil": "Q4 (alta)",
+        "Rango": "0.072–0.487",
+        "Pedidos": 17712,
+        "% tardíos": 0.12206413730803975,
+        "IC inf": 0.11732488529569272,
+        "IC sup": 0.1269672906602885
+      }
+    ],
+    "chi2": 1066.6733143835065,
+    "p": 6.18294152262043e-231,
+    "control_global": [
+      0.034437983402021116,
+      0.08982103539773048,
+      0.11274841915085818,
+      0.068763055383052
+    ]
+  },
+  "costo_resenas": {
+    "tardios_test": 1115,
+    "resenas_extra": 592.547388575932,
+    "resenas_extra_li": 579.1217864552859,
+    "resenas_extra_ls": 605.9729906965782,
+    "por_mil_pedidos": 36.07848715098625
+  },
+  "valor": {
+    "gmv_tardios_test": 193632.41999999998,
+    "ticket_tardio": 173.66136322869954,
+    "ticket_a_tiempo": 163.34333897256033
+  },
+  "recompra": {
+    "a_tiempo": {
+      "p": 0.03157711095603629,
+      "li": 0.03010263102045405,
+      "ls": 0.033121347163790144,
+      "k": 1629,
+      "n": 51588
+    },
+    "tardio": {
+      "p": 0.02642331789703078,
+      "li": 0.021709088554295708,
+      "ls": 0.03212764456602872,
+      "k": 97,
+      "n": 3671
+    },
+    "chi2": 2.8404340484687784,
+    "p": 0.09191938099446624
+  },
+  "equilibrio": [
+    {
+      "% revisado": 5,
+      "Alertas": 1268,
+      "Tardíos anticipados": 174,
+      "Precisión": 0.1372239748,
+      "Alertas por retraso anticipado": 7.287356319895785,
+      "C_FN / C_FP mínimo": 7.287356319895785
+    },
+    {
+      "% revisado": 10,
+      "Alertas": 2535,
+      "Tardíos anticipados": 278,
+      "Precisión": 0.1096646943,
+      "Alertas por retraso anticipado": 9.118705034314766,
+      "C_FN / C_FP mínimo": 9.118705034314766
+    },
+    {
+      "% revisado": 20,
+      "Alertas": 5070,
+      "Tardíos anticipados": 439,
+      "Precisión": 0.0865877712,
+      "Alertas por retraso anticipado": 11.548974943473311,
+      "C_FN / C_FP mínimo": 11.548974943473311
+    },
+    {
+      "% revisado": 30,
+      "Alertas": 7605,
+      "Tardíos anticipados": 625,
+      "Precisión": 0.0821827745,
+      "Alertas por retraso anticipado": 12.167999998588511,
+      "C_FN / C_FP mínimo": 12.167999998588511
+    }
+  ],
+  "baselines": [
+    {
+      "Método": "Regla: días prometidos",
+      "Tipo": "regla",
+      "Dirección": "menor = riesgo",
+      "PR-AUC train": 0.0739731805206931,
+      "PR-AUC": 0.10571863582599503,
+      "ROC-AUC": 0.6735496136947545,
+      "Captura top 20 %": 0.3901345291479821,
+      "× azar": 2.403558222591008,
+      "Elegida en train": false
+    },
+    {
+      "Método": "Regresión Logística",
+      "Tipo": "modelo",
+      "Dirección": "",
+      "PR-AUC train": NaN,
+      "PR-AUC": 0.0980790957,
+      "ROC-AUC": 0.7164521164,
+      "Captura top 20 %": 0.39372197309400003,
+      "× azar": 2.229870023313901,
+      "Elegida en train": false
+    },
+    {
+      "Método": "Red Neuronal",
+      "Tipo": "modelo",
+      "Dirección": "",
+      "PR-AUC train": NaN,
+      "PR-AUC": 0.0950593333,
+      "ROC-AUC": 0.7290769104,
+      "Captura top 20 %": 0.43497757847499996,
+      "× azar": 2.161214438704036,
+      "Elegida en train": false
+    },
+    {
+      "Método": "Regla: pedidos de los últimos 7 días",
+      "Tipo": "regla",
+      "Dirección": "mayor = riesgo",
+      "PR-AUC train": 0.13145701585917305,
+      "PR-AUC": 0.07594041312897487,
+      "ROC-AUC": 0.6738765507026212,
+      "Captura top 20 %": 0.40358744394618834,
+      "× azar": 1.7265376437843165,
+      "Elegida en train": false
+    },
+    {
+      "Método": "Regla: carga reciente hacia el estado",
+      "Tipo": "regla",
+      "Dirección": "mayor = riesgo",
+      "PR-AUC train": 0.11122752404466375,
+      "PR-AUC": 0.05469546391081803,
+      "ROC-AUC": 0.5015045689580999,
+      "Captura top 20 %": 0.22242152466367712,
+      "× azar": 1.2435246727706162,
+      "Elegida en train": false
+    },
+    {
+      "Método": "Regla: historial de la ruta",
+      "Tipo": "regla",
+      "Dirección": "mayor = riesgo",
+      "PR-AUC train": 0.1396761240364481,
+      "PR-AUC": 0.051047559878758815,
+      "ROC-AUC": 0.5142123323474092,
+      "Captura top 20 %": 0.26547085201793724,
+      "× azar": 1.1605880205619157,
+      "Elegida en train": true
+    },
+    {
+      "Método": "Regla: historial del vendedor",
+      "Tipo": "regla",
+      "Dirección": "mayor = riesgo",
+      "PR-AUC train": 0.0982986823134046,
+      "PR-AUC": 0.05033349368819302,
+      "ROC-AUC": 0.5204987228011224,
+      "Captura top 20 %": 0.22242152466367712,
+      "× azar": 1.1443534215208009,
+      "Elegida en train": false
+    },
+    {
+      "Método": "Regla: distancia",
+      "Tipo": "regla",
+      "Dirección": "mayor = riesgo",
+      "PR-AUC train": 0.10482358761999394,
+      "PR-AUC": 0.04636467601467766,
+      "ROC-AUC": 0.4741263654370833,
+      "Captura top 20 %": 0.23946188340807176,
+      "× azar": 1.0541206609615055,
+      "Elegida en train": false
+    },
+    {
+      "Método": "Azar",
+      "Tipo": "azar",
+      "Dirección": "",
+      "PR-AUC train": NaN,
+      "PR-AUC": 0.04398422090729783,
+      "ROC-AUC": 0.5,
+      "Captura top 20 %": 0.2,
+      "× azar": 1.0,
+      "Elegida en train": false
+    },
+    {
+      "Método": "Regla: carga reciente del sistema",
+      "Tipo": "regla",
+      "Dirección": "mayor = riesgo",
+      "PR-AUC train": 0.08190874309836206,
+      "PR-AUC": 0.03919340083670387,
+      "ROC-AUC": 0.44899675357416774,
+      "Captura top 20 %": 0.14439461883408072,
+      "× azar": 0.8910786647627292,
+      "Elegida en train": false
+    }
+  ],
+  "regla_elegida": {
+    "Método": "Regla: historial de la ruta",
+    "Tipo": "regla",
+    "Dirección": "mayor = riesgo",
+    "PR-AUC train": 0.1396761240364481,
+    "PR-AUC": 0.051047559878758815,
+    "ROC-AUC": 0.5142123323474092,
+    "Captura top 20 %": 0.26547085201793724,
+    "× azar": 1.1605880205619157
+  },
+  "regla_posthoc": {
+    "Método": "Regla: días prometidos",
+    "Tipo": "regla",
+    "Dirección": "menor = riesgo",
+    "PR-AUC train": 0.0739731805206931,
+    "PR-AUC": 0.10571863582599503,
+    "ROC-AUC": 0.6735496136947545,
+    "Captura top 20 %": 0.3901345291479821,
+    "× azar": 2.403558222591008
+  }
+}

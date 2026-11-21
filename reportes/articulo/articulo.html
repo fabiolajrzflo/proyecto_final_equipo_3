@@ -1,190 +1,325 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8">
-<title>Predicción de entregas tardías en Olist</title>
+<title>Predicción de entregas tardías en Olist · Equipo 3</title>
 <style>
-@page { size: A4; margin: 22mm 20mm 22mm 20mm; @bottom-center { content: counter(page); } }
+@page { size: A4; margin: 22mm 20mm 22mm 20mm; @bottom-center { content: counter(page); font-size: 9pt; } }
 body { font-family: "Times New Roman", Georgia, serif; font-size: 10.6pt; line-height: 1.42; color: #111; margin: 0; background: #fff; }
 .wrap { max-width: 170mm; margin: 0 auto; }
 h1 { font-size: 18.5pt; line-height: 1.2; text-align: center; margin: 0 0 8pt; font-weight: 700; }
 .autores { text-align: center; font-size: 10.5pt; margin-bottom: 2pt; }
-.afil { text-align: center; font-size: 9.5pt; color: #444; margin-bottom: 14pt; font-style: italic; }
+.afil { text-align: center; font-size: 9.5pt; color: #444; margin-bottom: 14pt; font-style: italic; line-height: 1.35; }
 .abstract { border-top: 1px solid #111; border-bottom: 1px solid #111; padding: 8pt 4mm; margin: 0 0 14pt; font-size: 9.8pt; text-align: justify; }
-.abstract b.h { font-variant: small-caps; letter-spacing: .03em; }
-h2 { font-size: 12pt; margin: 16pt 0 6pt; font-variant: small-caps; letter-spacing: .02em; }
-h3 { font-size: 10.8pt; margin: 10pt 0 4pt; font-style: italic; font-weight: 700; }
+.abstract h2 { margin: 0 0 4pt; font-size: 10.5pt; }
+h2 { font-size: 12pt; margin: 16pt 0 6pt; font-variant: small-caps; letter-spacing: .02em; break-after: avoid; }
+h3 { font-size: 10.8pt; margin: 10pt 0 4pt; font-style: italic; font-weight: 700; break-after: avoid; }
 p { margin: 0 0 7pt; text-align: justify; hyphens: auto; }
 figure { margin: 10pt 0 12pt; text-align: center; break-inside: avoid; }
 figure img { max-width: 100%; }
 figure.m img { max-width: 78%; }
 figcaption { font-size: 9pt; text-align: justify; margin-top: 4pt; color: #222; }
-figcaption b { font-weight: 700; }
-table { border-collapse: collapse; width: 100%; font-size: 8.8pt; margin: 4pt 0 2pt; font-family: "Helvetica Neue", Arial, sans-serif; break-inside: avoid; }
-thead th { border-top: 1.4px solid #111; border-bottom: 0.8px solid #111; padding: 4pt 5pt; text-align: right; font-weight: 600; }
-td { padding: 3.2pt 5pt; text-align: right; border-bottom: 0.4px solid #ddd; font-variant-numeric: tabular-nums; }
+table { border-collapse: collapse; width: 100%; font-size: 8.6pt; margin: 4pt 0 2pt; font-family: "Helvetica Neue", Arial, sans-serif; break-inside: avoid; }
+thead th { border-top: 1.4px solid #111; border-bottom: 0.8px solid #111; padding: 4pt 5pt; text-align: right; font-weight: 600; vertical-align: bottom; }
+td { padding: 3.2pt 5pt; text-align: right; border-bottom: 0.4px solid #ddd; font-variant-numeric: tabular-nums; vertical-align: top; }
 td:not(:first-child):not(.l) { white-space: nowrap; }
 th:first-child, td:first-child, td.l { text-align: left; }
 tbody tr:last-child td { border-bottom: 1.4px solid #111; }
 tr.win td { font-weight: 700; }
+table.costos td, table.arte td { font-size: 8.2pt; line-height: 1.3; }
+table.arte th, table.costos th { text-align: left; }
+table.dicc { font-size: 8pt; break-inside: auto; } table.dicc tr { break-inside: avoid; } table.dicc th { text-align: left; }
+table.dicc td.var { font-family: Menlo, monospace; font-size: 7.4pt; white-space: nowrap; }
 .tcap { font-size: 9pt; margin: 10pt 0 3pt; text-align: left; break-after: avoid; }
-ul { margin: 0 0 7pt 0; padding-left: 16pt; } li { margin-bottom: 3pt; text-align: justify; }
-.ref p { font-size: 9pt; padding-left: 14pt; text-indent: -14pt; margin-bottom: 3pt; text-align: left; }
-code { font-size: 9pt; font-family: Menlo, monospace; }
+ul, ol { margin: 0 0 7pt 0; padding-left: 16pt; } li { margin-bottom: 3pt; text-align: justify; }
+.ref p { font-size: 8.8pt; line-height: 1.35; padding-left: 14pt; text-indent: -14pt; margin-bottom: 3pt; text-align: left; overflow-wrap: anywhere; }
+code { font-size: 8.6pt; font-family: Menlo, monospace; }
 .kw { font-size: 9.4pt; margin-top: 5pt; }
+.anexo { break-before: page; }
 </style></head><body><div class="wrap">
 
 <h1>Anticipar el retraso: predicción de entregas tardías en un marketplace de e-commerce con validación temporal sin fuga de información</h1>
-<div class="autores">Equipo 3</div>
-<div class="afil">Diplomado en IA Generativa, Business Intelligence y Ciencia de Datos · Proyecto final · Noviembre 2026</div>
+<div class="autores">Fabiola Juárez Flores · Martha Jessica Campos Aldape · Candy del Carmen Cortes Castro</div>
+<div class="afil">Equipo 3 · Universidad Anáhuac Querétaro · Diplomado Liderazgo en la Era de la IA: Estrategias de IA Generativa,
+Business Intelligence y Ciencia de Datos · Proyecto final · Noviembre de 2026</div>
 
-<div class="abstract"><b class="h">Resumen.</b> Las entregas tardías son poco frecuentes en el marketplace brasileño Olist (6,8 % de
-96 201 pedidos entre 2017 y 2018), pero tienen un costo alto en satisfacción: la calificación promedio cae de
-4,29 a 2,27 estrellas y el 62 % de los pedidos tardíos recibe una o dos estrellas.
-Planteamos un problema de clasificación binaria: estimar, <i>en el momento de la compra</i>, la probabilidad de que un pedido llegue después
-de la fecha prometida. Construimos 36 variables por pedido que usan exclusivamente información disponible en ese instante, incluidas tasas
-históricas <i>point-in-time</i> del vendedor y de la ruta y variables de carga reciente del sistema. Para evaluar sin fuga de información
-diseñamos un esquema temporal con un periodo de prueba aislado (mayo–agosto 2018), validación cruzada de ventana creciente de cinco folds y
-purga de pedidos cuyo resultado aún no se conocía al inicio de cada periodo de validación. Comparamos regresión logística, Random Forest,
-XGBoost y una red neuronal (MLP en Keras), cada uno con su propia selección de variables y búsqueda de hiperparámetros. Los tres modelos
-clásicos empataron en validación y la regresión logística los representa por simplicidad; la red neuronal fue la mejor en validación
-(PR-AUC 0,190 frente a 0,153). En el periodo de prueba ambos fueron prácticamente
-equivalentes (PR-AUC 0,098 y 0,095, alrededor de 2,2 veces el azar), y la
-logística concentró el 39 % de los retrasos en el 20 % de pedidos con mayor riesgo. Discutimos el efecto de la
-deriva temporal en las métricas y en el umbral de decisión, y proponemos operar el score por capacidad mediante alertas proactivas.
-<div class="kw"><b>Palabras clave:</b> clasificación desbalanceada, validación temporal, fuga de información, logística de última milla, e-commerce.</div></div>
+<div class="abstract"><h2>1. Resumen</h2>Las entregas tardías son poco frecuentes en el marketplace brasileño Olist (6,8 % de 96 201
+pedidos entre 2017 y 2018), pero cuestan caro: un pedido tardío tiene 53,1 puntos porcentuales más probabilidad de
+recibir una reseña de una o dos estrellas (IC 95 %: 51,9–54,3). Este trabajo apoya la decisión
+diaria del área de operaciones sobre qué pedidos atender de forma proactiva. Planteamos una clasificación binaria que estima, en el
+momento de la compra, la probabilidad de retraso con 36 variables disponibles en ese instante, incluidas tasas históricas
+<i>point-in-time</i> del vendedor y de la ruta y la carga reciente del sistema. La evaluación usa un periodo de prueba aislado
+(mayo–agosto 2018), validación cruzada temporal de cinco folds con purga y la PR-AUC como métrica principal. Comparamos regresión
+logística, Random Forest y XGBoost con una red neuronal en Keras con detención temprana. Los modelos clásicos empataron en validación
+y la red fue la mejor (PR-AUC 0,190 frente a 0,153), pero en prueba ambos
+resultaron equivalentes (0,098 y 0,095, 2,2 veces el azar) y superaron
+a la regla simple elegida con datos de entrenamiento (0,051). Revisar el 20 % de pedidos más riesgosos anticipa el
+39 % de los retrasos. Recomendamos un piloto de alertas proactivas por capacidad con la regresión
+logística, la red como modelo retador y reentrenamiento mensual.
+<div class="kw"><b>Palabras clave:</b> clasificación desbalanceada, validación temporal, fuga de información, costo del error, logística de última milla, e-commerce.</div></div>
 
-<h2>1. Introducción</h2>
-<p>En un marketplace, la empresa promete al cliente una fecha de entrega que depende de terceros: el vendedor debe despachar a tiempo y la
-transportista debe completar la ruta. Cuando la promesa no se cumple, el costo no es sólo logístico: la reseña pública del pedido se deteriora
-y con ella la reputación del vendedor y la conversión de futuros compradores. Si fuera posible identificar con anticipación los pedidos con mayor
-riesgo, la empresa podría gestionar la expectativa del cliente o priorizar la operación antes de que el retraso ocurra.</p>
-<p>Este trabajo aborda esa pregunta con datos públicos reales de Olist [1]. Sus contribuciones son: (i) un conjunto de variables construidas
-estrictamente con información disponible al momento de la compra, verificado contra fugas; (ii) un esquema de validación temporal con purga que
-refleja cuándo se conoce realmente la etiqueta de un pedido; (iii) una comparación controlada de cuatro familias de modelos, cada una con su propia
-selección de variables y ajuste de hiperparámetros, y (iv) una traducción de los resultados a decisiones operativas.</p>
+<h2>2. Introducción y definición del problema</h2>
+<p><b>Empresa y contexto.</b> Olist es un marketplace brasileño que conecta a pequeños vendedores con compradores de todo el país. El
+vendedor despacha, una transportista entrega y la plataforma promete al cliente una fecha de entrega. Cuando la promesa no se cumple, el
+costo no es sólo logístico: la reseña pública del pedido se deteriora y, con ella, la reputación del vendedor y la conversión de futuros
+compradores.</p>
+<p><b>Decisión y destinatario.</b> El proyecto apoya una decisión que se toma todos los días: <i>qué pedidos recién comprados conviene atender de
+forma proactiva</i>, ya sea avisando al cliente, escalando con el vendedor o la transportista, o ajustando la promesa. Quien la toma es el
+responsable de operaciones logísticas y de experiencia del cliente, que tiene una capacidad limitada de atención por día.</p>
+<p><b>Cuánto cuesta equivocarse.</b> La Tabla 1 resume, con los datos, el costo de cada tipo de error. Un falso negativo (un retraso que no se
+anticipó) eleva en 53,1 puntos porcentuales la probabilidad de una reseña de 1–2 estrellas, lo que equivale a unas
+593 reseñas negativas adicionales en los cuatro meses del periodo de prueba. Un falso positivo (una alerta sobre un pedido
+que llegaría a tiempo) cuesta el contacto o la intervención. Como el modelo concentra los retrasos, revisando el 20 % de pedidos de mayor riesgo
+se necesitan 11,5 alertas por cada retraso anticipado: la acción preventiva conviene si gestionar
+a tiempo un retraso vale más que ese número de alertas.</p>
+<div class="tcap"><b>Tabla 1.</b> Costo de cada tipo de error, estimado con los datos (notebook 07).</div><table class='costos'><thead><tr><th>Error</th><th>Qué ocurre</th><th>Cómo se mide</th><th>Estimación con los datos</th></tr></thead><tbody><tr><td rowspan=3 class=l><b>Falso negativo</b><br>retraso no anticipado</td><td class=l>La reseña se deteriora</td><td class=l>Diferencia en reseñas de 1–2★, tardíos vs. puntuales</td><td class=l>+53,1 pp (IC 95 %: 51,9–54,3); ≈ 593 reseñas negativas adicionales en los cuatro meses de prueba (36 por cada 1 000 pedidos)</td></tr><tr><td class=l>Valor comprometido</td><td class=l>Pago total de los pedidos tardíos en prueba</td><td class=l>R$ 193 632 (ticket promedio R$ 174)</td></tr><tr><td class=l>Pérdida del cliente</td><td class=l>Recompra en los 180 días siguientes</td><td class=l>Sin diferencia significativa (2,6 % vs. 3,2 %; p = 0,09)</td></tr><tr><td class=l><b>Falso positivo</b><br>alerta innecesaria</td><td class=l>Costo de contactar o intervenir un pedido que llegaría a tiempo</td><td class=l>Alertas por cada retraso anticipado (revisando el 20 %)</td><td class=l>11,5 alertas: la acción conviene si gestionar un retraso vale más que 11,5 alertas</td></tr></tbody></table>
+<p><b>Requerimiento de machine learning.</b> Dado un pedido en el instante <i>t</i> de la compra, estimar la probabilidad de que se entregue después
+de la fecha prometida usando sólo información disponible en <i>t</i>. El objetivo operativo es ordenar los pedidos por riesgo para capturar la mayor
+fracción de retrasos dentro de una capacidad fija de revisión (<i>k</i> % de los pedidos). El modelo se considera útil si supera al azar y a la
+mejor regla de una sola variable elegida con datos de entrenamiento.</p>
+<p><b>Contribuciones.</b> (i) Un conjunto de variables construido estrictamente con información del momento de la compra y verificado contra fugas;
+(ii) un esquema de validación temporal con purga que refleja cuándo se conoce realmente la etiqueta de un pedido; (iii) una comparación controlada
+de cuatro familias de modelos, cada una con su propia selección de variables y ajuste de hiperparámetros, y contra reglas simples; y (iv) una
+traducción de los resultados a costos y decisiones operativas.</p>
 
-<h2>2. Datos</h2>
-<p>El conjunto de datos de Olist contiene 99 441 pedidos (septiembre 2016 – octubre 2018) distribuidos en nueve tablas
-relacionales: pedidos, ítems, pagos, productos, vendedores, clientes, geolocalización por código postal y reseñas. Las reglas de limpieza fueron:
-eliminar pedidos cancelados o no disponibles (1 234); excluir pedidos sin fecha de entrega
-(1 737); y excluir pedidos cuya fecha estimada es posterior a la última entrega registrada, para los cuales aún no se
-podría conocer el resultado (2). Los pedidos de 2016 son escasos y presentan un hueco entre noviembre
-y diciembre; se usaron sólo como historial para las variables, de modo que el conjunto de modelado contiene 96 201 pedidos a partir de
-enero de 2017. No se eliminaron valores atípicos, porque los pedidos extremos (muy pesados o lejanos) son precisamente los de mayor riesgo.</p>
-<p><b>Variable objetivo.</b> Un pedido es tardío (<code>delivery_late = 1</code>) si se entregó en un día posterior a la fecha estimada. La fecha
-estimada siempre viene a las 00:00, por lo que la comparación se hace por día: un pedido entregado el mismo día prometido cuenta como a tiempo.
-Definimos además el instante en que la etiqueta se vuelve conocida, <code>label_conocida_en = min(entrega, estimada + 1 día)</code>: un pedido
-puntual se sabe al entregarse y uno tardío en cuanto vence su promesa. Esta columna es la base de las variables históricas y de la purga.</p>
+<h2>3. Estado del arte</h2>
+<p>La predicción de tiempos de entrega se ha estudiado sobre todo como un problema de regresión con información rica en tiempo real. Salari et al.
+(2022) estiman con modelos de árboles la distribución del tiempo de entrega de los pedidos de JD.com y la usan para fijar la promesa, con un aumento
+de 6,1 % en ventas. En movilidad, Derrow-Pinion et al. (2021) predicen el tiempo de llegada en Google Maps con redes neuronales de grafos sobre la red
+vial, y Hu et al. (2022) proponen en Uber un modelo que corrige el residuo de un motor de rutas. Estos trabajos muestran el valor de una buena
+promesa, pero dependen de tráfico, rutas o escaneos de la transportista que no existen en el momento de la compra. Nuestro problema es distinto: la
+promesa ya está dada y queremos anticipar, sólo con la información de la compra, si se incumplirá.</p>
+<p>Sobre la elección de modelos, Grinsztajn et al. (2022) muestran en 45 conjuntos tabulares que los modelos de árboles siguen superando a las redes
+profundas en tablas de tamaño mediano, y Shwartz-Ziv y Armon (2022) llegan a una conclusión parecida al comparar arquitecturas recientes contra
+XGBoost. Por eso comparamos regresión logística, Random Forest y XGBoost contra una red neuronal, sin presuponer que la red gane. Sobre la evaluación,
+Kaufman et al. (2012) formalizan la fuga de información, Bergmeir y Benítez (2012) y López de Prado (2018) discuten la validación cruzada con datos
+temporales y la purga entre periodos, Saito y Rehmsmeier (2015) recomiendan la curva precisión-recall para clases desbalanceadas y Elkan (2001)
+relaciona el umbral de decisión con el costo de cada error. Nuestro aporte combina estas piezas en un caso de marketplace (Tabla 2).</p>
+<div class="tcap"><b>Tabla 2.</b> Trabajos relacionados.</div><table class='arte'><thead><tr><th>Trabajo</th><th>Publicación / origen</th><th>Problema</th><th>Enfoque y hallazgo</th><th>Relación con este trabajo</th></tr></thead><tbody><tr><td class=l>Salari, Liu y Shen (2022)</td><td class=l><i>MSOM</i> (INFORMS), datos de JD.com</td><td class=l>Pronosticar el tiempo de entrega y fijar la promesa en retail en línea</td><td class=l>Modelos de árboles que estiman la distribución del tiempo de entrega; la nueva política de promesa eleva las ventas 6,1 %</td><td class=l>La promesa es una palanca de negocio. Aquí la promesa ya está dada y se predice su incumplimiento</td></tr><tr><td class=l>Derrow-Pinion et al. (2021)</td><td class=l>CIKM, Google y DeepMind</td><td class=l>Tiempo estimado de llegada (ETA) en Google Maps</td><td class=l>Redes neuronales de grafos sobre la red vial; hasta 40 % menos errores graves de ETA en ciudades como Sídney</td><td class=l>Usan tráfico en tiempo real que este caso no tiene: sólo hay información del momento de la compra</td></tr><tr><td class=l>Hu et al. (2022)</td><td class=l>arXiv, Uber</td><td class=l>Corregir el ETA de un motor de rutas</td><td class=l>Modelo híbrido que aprende el residuo sobre una predicción base</td><td class=l>Partir de una estimación existente; análogo a tratar la fecha prometida como base</td></tr><tr><td class=l>Grinsztajn, Oyallon y Varoquaux (2022)</td><td class=l>NeurIPS, Inria</td><td class=l>¿Árboles o redes en datos tabulares?</td><td class=l>45 conjuntos de datos: los árboles siguen siendo superiores en tablas medianas (~10 000 filas)</td><td class=l>Justifica comparar modelos de árboles contra la red y no esperar una ventaja grande de la red</td></tr><tr><td class=l>Kaufman et al. (2012)</td><td class=l><i>ACM TKDD</i></td><td class=l>Fuga de información en minería de datos</td><td class=l>Formalizan la fuga: usar información que no estaría disponible al predecir</td><td class=l>Base de las variables <i>point-in-time</i> y de la purga entre periodos</td></tr></tbody></table>
 
-<figure class="m"><img src="../figuras/eda_reviews.png"><figcaption><b>Figura 1.</b> Distribución de calificaciones según puntualidad del pedido.
-Los pedidos tardíos promedian 2,27 estrellas frente a 4,29 de los puntuales; el
-54 % recibe una estrella. Las reseñas se usan sólo para dimensionar el problema, nunca como variable.</figcaption></figure>
+<h2>4. Datos</h2>
+<h3>4.1 Fuente, permiso de uso y periodo</h3>
+<p>Usamos el <i>Brazilian E-Commerce Public Dataset by Olist</i> (Olist, 2018), publicado en Kaggle con licencia Creative Commons
+Atribución-NoComercial-CompartirIgual 4.0 (CC BY-NC-SA 4.0), que permite su uso académico citando la fuente. Los datos son reales y están
+anonimizados: no contienen nombres ni datos que identifiquen a personas. Comprenden 99 441 pedidos de septiembre de 2016 a
+octubre de 2018 en nueve archivos relacionales: pedidos, ítems, pagos, productos, vendedores, clientes, geolocalización por código postal, reseñas y
+traducción de categorías. Las tablas se unieron y prepararon con pandas en los notebooks 01 a 04. El conjunto de modelado tiene
+96 201 pedidos (enero 2017 – agosto 2018) descritos por 36 variables y la variable objetivo; el diccionario de datos está en el
+Anexo A.</p>
+<h3>4.2 Limpieza y variable objetivo</h3>
+<p>Las reglas de limpieza fueron: eliminar pedidos cancelados o no disponibles (1 234); excluir, por decisión
+del equipo, pedidos sin fecha de entrega (1 737); y excluir pedidos cuya fecha estimada es posterior a la última
+entrega registrada, para los cuales aún no se podría conocer el resultado (2). Los pedidos de 2016
+son escasos y presentan un hueco entre noviembre y diciembre; se usaron sólo como historial para las variables. No se eliminaron valores atípicos,
+porque los pedidos extremos (muy pesados o lejanos) son precisamente los de mayor riesgo.</p>
+<p>Un pedido es tardío (<code>delivery_late = 1</code>) si se entregó en un día posterior a la fecha estimada. La fecha estimada siempre viene a las
+00:00, por lo que la comparación se hace por día: un pedido entregado el mismo día prometido cuenta como a tiempo. Definimos además el instante en
+que la etiqueta se vuelve conocida, <code>label_conocida_en = min(entrega, estimada + 1 día)</code>: un pedido puntual se sabe al entregarse y uno
+tardío en cuanto vence su promesa. Esta columna es la base de las variables históricas y de la purga.</p>
+<h3>4.3 Análisis exploratorio y estadística descriptiva</h3>
+<p>La tasa de retraso es de 6,79 % (IC 95 % de Wilson [Wilson, 1927]: 6,63–6,95 %),
+lo que hace al problema desbalanceado. Los pedidos tardíos promedian 2,27 estrellas frente a 4,29 de los puntuales
+(Figura 1) y los retrasos llegan en oleadas (Figura 2): la tasa mensual pasó de menos de 3 % a 19 % en marzo de 2018.
+El pedido típico llega 12 días antes de lo prometido y, cuando un pedido se retrasa, el retraso mediano es de
+6 días.</p>
+<figure class="m"><img src="../figuras/eda_reviews.png"><figcaption><b>Figura 1.</b> Distribución de calificaciones según puntualidad del pedido. Las reseñas
+se usan sólo para dimensionar el problema, nunca como variable del modelo.</figcaption></figure>
+<figure><img src="../figuras/eda_tasa_mensual.png"><figcaption><b>Figura 2.</b> Volumen de pedidos y tasa de retraso por mes de compra. La línea punteada marca el
+inicio del periodo de prueba, que tiene una tasa de retraso menor (4.4 %) que el de entrenamiento (7.59 %).</figcaption></figure>
+<p>La Tabla 3 describe las variables clave en el periodo de entrenamiento. Como tamaño del efecto reportamos el AUC univariado: la probabilidad de
+que un pedido tardío tenga un valor mayor que uno puntual (0,5 = no separa). Ninguna variable aislada pasa de 0,67; las que más separan son la carga de
+pedidos de los últimos siete días, el historial de la ruta y la tasa de retraso reciente hacia el estado del cliente. Los días prometidos casi no
+separan por sí solos (0,49), porque la promesa ya incorpora un margen: su efecto aparece al combinarlos con otras variables.</p>
+<div class="tcap"><b>Tabla 3.</b> Estadística descriptiva por clase, periodo de entrenamiento (70 851 pedidos).</div><table class=''><thead><tr><th>Variable</th><th>Mediana a tiempo</th><th>Mediana tardío</th><th>Media a tiempo</th><th>Media tardío</th><th>AUC univariado</th></tr></thead><tbody><tr><td class=l>Pedidos de los últimos 7 días</td><td>1 161</td><td>1 632</td><td>1 285</td><td>1 592</td><td>0,665</td></tr><tr><td class=l>Historial de retrasos de la ruta</td><td>3,4 %</td><td>4,2 %</td><td>4,0 %</td><td>5,9 %</td><td>0,648</td></tr><tr><td class=l>Tasa de retraso hacia el estado, 30 días</td><td>3,6 %</td><td>5,9 %</td><td>6,2 %</td><td>8,7 %</td><td>0,630</td></tr><tr><td class=l>Distancia vendedor–cliente (km)</td><td>436,7</td><td>563,8</td><td>597,0</td><td>802,7</td><td>0,599</td></tr><tr><td class=l>Historial de retrasos del vendedor</td><td>3,4 %</td><td>4,2 %</td><td>4,1 %</td><td>5,0 %</td><td>0,590</td></tr><tr><td class=l>Flete total (R$)</td><td>16,7</td><td>18,2</td><td>22,0</td><td>25,7</td><td>0,590</td></tr><tr><td class=l>Tasa de retraso del sistema, 30 días</td><td>4,4 %</td><td>5,0 %</td><td>6,8 %</td><td>6,9 %</td><td>0,567</td></tr><tr><td class=l>Precio total (R$)</td><td>85,0</td><td>92,0</td><td>134,8</td><td>151,0</td><td>0,531</td></tr><tr><td class=l>Peso promedio del producto (g)</td><td>700,0</td><td>800,0</td><td>2 142,9</td><td>2 526,7</td><td>0,522</td></tr><tr><td class=l>Días de entrega prometidos</td><td>23,6</td><td>23,5</td><td>24,5</td><td>24,1</td><td>0,493</td></tr><tr><td class=l>Plazo mínimo del vendedor para despachar (días)</td><td>6,0</td><td>6,0</td><td>6,9</td><td>6,7</td><td>0,494</td></tr></tbody></table>
+<p>La Tabla 4 respalda con intervalos de confianza y pruebas de hipótesis los hallazgos que usamos en el resto del trabajo: el costo del retraso en
+las reseñas, el cambio de la tasa de retraso entre periodos (deriva), que motiva la validación temporal, y el efecto de la saturación reciente, que
+motiva las variables de carga. Por cuartil de la tasa reciente hacia el estado, la tasa de retraso sube de forma monótona
+(4,1 %, 5,0 %, 9,2 %, 12,2 %); con la tasa global del sistema la relación no es monótona, porque el cuartil más alto coincide con la
+salida de las oleadas. La recompra a 180 días no muestra una diferencia significativa.</p>
+<div class="tcap"><b>Tabla 4.</b> Intervalos de confianza al 95 % y pruebas de hipótesis (notebook 07).</div><table class=''><thead><tr><th>Hallazgo</th><th>Estimación</th><th>IC 95 %</th><th>Prueba</th><th>p-valor</th></tr></thead><tbody><tr><td class=l>Tasa de retraso, 2017–2018</td><td>6,79 %</td><td>6,63–6,95 %</td><td class=l>Intervalo de Wilson</td><td>—</td></tr><tr><td class=l>Cambio entre periodos: entrenamiento vs. prueba</td><td>7,64 % vs. 4,40 %</td><td>7,45–7,84 % / 4,15–4,66 %</td><td class=l>χ² = 310,3</td><td>&lt; 0,001</td></tr><tr><td class=l>Calificación promedio, tardío − a tiempo</td><td>-2,02 ★</td><td>-2,06 a -1,98</td><td class=l>t de Welch; Mann-Whitney</td><td>&lt; 0,001; &lt; 0,001</td></tr><tr><td class=l>Reseñas de 1–2★, tardío − a tiempo</td><td>+53,1 pp</td><td>51,9 a 54,3 pp</td><td class=l>χ²</td><td>&lt; 0,001</td></tr><tr><td class=l>Retraso según la carga reciente hacia el estado (cuartil 1 vs. 4)</td><td>4,1 % vs. 12,2 %</td><td>3,8–4,4 % / 11,7–12,7 %</td><td class=l>χ² = 1 067 (4 cuartiles)</td><td>&lt; 0,001</td></tr><tr><td class=l>Recompra a 180 días, primera compra tardía vs. puntual</td><td>2,64 % vs. 3,16 %</td><td>2,17–3,21 % / 3,01–3,31 %</td><td class=l>χ² = 2,84</td><td>0,09</td></tr></tbody></table>
 
-<figure><img src="../figuras/eda_tasa_mensual.png"><figcaption><b>Figura 2.</b> Volumen de pedidos y tasa de retraso por mes de compra. Los retrasos llegan en
-oleadas (noviembre 2017 y febrero–marzo 2018). La línea punteada marca el inicio del periodo de prueba, que tiene una tasa de retraso menor
-(4.4 %) que el periodo de entrenamiento (7.59 %).</figcaption></figure>
-
-<h2>3. Metodología</h2>
-<h3>3.1 Variables</h3>
-<p>Cada pedido se describe con 36 variables agrupadas en ocho familias: promesa de entrega (días prometidos y plazo del vendedor para
-despachar), tamaño del pedido, características físicas del producto, forma de pago, geografía (estados, distancia de Haversine entre los centroides
-de los códigos postales), calendario (día de la semana y franja horaria), historial y carga reciente. El mes de compra se descartó porque, con menos
-de dos años de datos, identifica episodios concretos que el modelo memoriza en lugar de estacionalidad.</p>
-<p>Las variables de historial (tasa de retraso del vendedor y de la ruta estado→estado) y de carga reciente (tasa de retraso de las entregas
-conocidas en los 30 días previos, global y hacia el estado del cliente, y número de pedidos de los últimos 7 días) son <i>point-in-time</i>: para
-un pedido comprado en <i>t</i> sólo cuentan etiquetas con <code>label_conocida_en &lt; t</code>. Las tasas se suavizan hacia un <i>prior</i> con
-m = 20 observaciones; a diferencia de una versión anterior del proyecto, el prior es la tasa global conocida hasta <i>t</i> y no la del
-periodo de entrenamiento completo, que filtraba información futura hacia los primeros folds. Verificamos la ausencia de fuga recalculando por
-fuerza bruta el historial de 300 pedidos aleatorios. Las variables categóricas se codificaron con <i>one-hot</i> (las 20 categorías más
-frecuentes en entrenamiento), para un total de 105 columnas.</p>
-
-<h3>3.2 Diseño de validación</h3>
+<h2>5. Metodología</h2>
+<h3>5.1 División en entrenamiento y prueba y validación cruzada</h3>
 <p>El periodo de prueba son los pedidos comprados a partir del 2018-05-01 (25 350 pedidos, 4.4 % tardíos); no participó
 en ninguna decisión y se evaluó una sola vez. El entrenamiento (68 287 pedidos, 7.59 % tardíos) se dividió en seis bloques
-cronológicos para formar cinco folds de ventana creciente: el fold <i>k</i> entrena con los bloques 1…<i>k</i> y valida con el bloque <i>k</i>+1 (Tabla 1).
-A diferencia de <code>TimeSeriesSplit</code>, aplicamos <b>purga</b> [9]: un pedido sólo entrena si su etiqueta ya se conocía al inicio del periodo
-de validación. Sin ella, los últimos pedidos del entrenamiento tendrían etiquetas que en producción todavía no existirían. Entre entrenamiento y
-prueba se purgaron 2 564 pedidos. La imputación (mediana) y el escalado se ajustan dentro de cada fold mediante <code>Pipeline</code>.</p>
-<div class="tcap"><b>Tabla 1.</b> Folds temporales con purga.</div><table><thead><tr><th>Fold</th><th>Periodo de entrenamiento</th><th>Filas</th><th>Periodo de validación</th><th>Filas</th><th>% tardíos train</th><th>% tardíos val</th></tr></thead><tbody><tr><td>1</td><td>2017-01-05 – 2017-06-04</td><td>10 167</td><td>2017-06-06 – 2017-09-06</td><td>11 381</td><td>3,84</td><td>2,93</td></tr><tr><td>2</td><td>2017-01-05 – 2017-09-05</td><td>21 236</td><td>2017-09-06 – 2017-11-22</td><td>11 381</td><td>3,23</td><td>5,32</td></tr><tr><td>3</td><td>2017-01-05 – 2017-11-19</td><td>31 841</td><td>2017-11-22 – 2018-01-10</td><td>11 381</td><td>3,51</td><td>9,96</td></tr><tr><td>4</td><td>2017-01-05 – 2018-01-09</td><td>43 040</td><td>2018-01-10 – 2018-02-28</td><td>11 381</td><td>5,33</td><td>10,74</td></tr><tr><td>5</td><td>2017-01-05 – 2018-02-26</td><td>53 307</td><td>2018-02-28 – 2018-04-27</td><td>11 381</td><td>5,33</td><td>12,56</td></tr></tbody></table>
+cronológicos para formar cinco folds de ventana creciente: el fold <i>k</i> entrena con los bloques 1…<i>k</i> y valida con el bloque <i>k</i>+1 (Tabla 5).
+A diferencia de <code>TimeSeriesSplit</code>, aplicamos <b>purga</b> (López de Prado, 2018): un pedido sólo entrena si su etiqueta ya se conocía al
+inicio del periodo de validación. Sin ella, los últimos pedidos del entrenamiento tendrían etiquetas que en producción todavía no existirían. Entre
+entrenamiento y prueba se purgaron 2 564 pedidos. La imputación (mediana) y el escalado se ajustan dentro de cada fold mediante
+<code>Pipeline</code>.</p>
+<div class="tcap"><b>Tabla 5.</b> Folds temporales con purga.</div><table class=''><thead><tr><th>Fold</th><th>Periodo de entrenamiento</th><th>Filas</th><th>Periodo de validación</th><th>Filas</th><th>% tardíos train</th><th>% tardíos val</th></tr></thead><tbody><tr><td>1</td><td>2017-01-05 – 2017-06-04</td><td>10 167</td><td>2017-06-06 – 2017-09-06</td><td>11 381</td><td>3,84</td><td>2,93</td></tr><tr><td>2</td><td>2017-01-05 – 2017-09-05</td><td>21 236</td><td>2017-09-06 – 2017-11-22</td><td>11 381</td><td>3,23</td><td>5,32</td></tr><tr><td>3</td><td>2017-01-05 – 2017-11-19</td><td>31 841</td><td>2017-11-22 – 2018-01-10</td><td>11 381</td><td>3,51</td><td>9,96</td></tr><tr><td>4</td><td>2017-01-05 – 2018-01-09</td><td>43 040</td><td>2018-01-10 – 2018-02-28</td><td>11 381</td><td>5,33</td><td>10,74</td></tr><tr><td>5</td><td>2017-01-05 – 2018-02-26</td><td>53 307</td><td>2018-02-28 – 2018-04-27</td><td>11 381</td><td>5,33</td><td>12,56</td></tr></tbody></table>
 <figure><img src="../figuras/split_temporal.png"><figcaption><b>Figura 3.</b> Esquema de validación: cinco folds de ventana creciente y periodo de prueba
 aislado. La purga retira del entrenamiento los pedidos cuyo resultado aún no se conocía al inicio de cada validación (huecos apenas visibles a esta escala).</figcaption></figure>
+<h3>5.2 Variables</h3>
+<p>Cada pedido se describe con 36 variables agrupadas en ocho familias: promesa de entrega (días prometidos y plazo del vendedor para despachar),
+tamaño del pedido, características físicas del producto, forma de pago, geografía (estados, distancia de Haversine entre los centroides de los códigos
+postales), calendario (día de la semana y franja horaria), historial y carga reciente. El mes de compra se descartó porque, con menos de dos años de
+datos, identifica episodios concretos que el modelo memorizaría en lugar de estacionalidad.</p>
+<p>Las variables de historial (tasa de retraso del vendedor y de la ruta estado→estado) y de carga reciente (tasa de retraso de las entregas conocidas
+en los 30 días previos, global y hacia el estado del cliente, y número de pedidos de los últimos siete días) son <i>point-in-time</i>: para un pedido
+comprado en <i>t</i> sólo cuentan etiquetas con <code>label_conocida_en &lt; t</code> (Kaufman et al., 2012). Las tasas se suavizan hacia un
+<i>prior</i> con m = 20 observaciones; el prior es la tasa global conocida hasta <i>t</i>, no la del periodo de entrenamiento completo, que
+filtraría información futura hacia los primeros folds. Verificamos la ausencia de fuga recalculando por fuerza bruta el historial de 300 pedidos
+aleatorios. Las variables categóricas se codificaron con <i>one-hot</i> (las 20 categorías más frecuentes en entrenamiento), para un
+total de 105 columnas.</p>
+<h3>5.3 Modelos clásicos, selección de variables e hiperparámetros</h3>
+<p>Se compararon tres modelos clásicos implementados con scikit-learn (Pedregosa et al., 2011): regresión logística con pesos balanceados (línea
+base), Random Forest (Breiman, 2001) y XGBoost (Chen y Guestrin, 2016). Para cada uno se siguió la misma secuencia: (1) eliminación recursiva de
+variables con validación cruzada (RFECV; Guyon et al., 2002), retirando el 10 % de variables menos importantes por ronda según los coeficientes o la
+importancia propia del modelo; y (2) búsqueda aleatoria de hiperparámetros (Bergstra y Bengio, 2012) sobre las variables elegidas. Ambos pasos usan
+los mismos cinco folds y la métrica PR-AUC.</p>
+<h3>5.4 Red neuronal</h3>
+<p>La red es un perceptrón multicapa en Keras (Chollet et al., 2015): capas densas con activación ReLU, regularización L2 y <i>dropout</i>
+(Srivastava et al., 2014), salida sigmoide, pérdida de entropía cruzada ponderada por clase y optimizador Adam. Como la red no ofrece una medida de
+importancia directa, su selección de variables comparó conjuntos candidatos (todas, el RFECV de cada modelo clásico, su unión y su intersección),
+seguida de una búsqueda aleatoria sobre arquitectura, <i>dropout</i>, L2, tasa de aprendizaje y tamaño de lote. Para evitar el sobreajuste se usó
+<b>detención temprana</b> (Prechelt, 1998): en cada fold, la pérdida se vigila sobre el 15 % más reciente del entrenamiento (nunca sobre el fold de
+validación), con paciencia de 8 épocas, un máximo de 100 y recuperación de los mejores pesos. La configuración elegida tiene capas
+(64, 32, 16), <i>dropout</i> 0,1, L2 0,01, tasa de aprendizaje
+0,0003 y lotes de 256, con 35 variables (conjunto RFECV XGBoost).
+En el ajuste final la mejor época fue la 58 y el entrenamiento se detuvo ocho épocas después (Figura 4).</p>
+<figure><img src="../figuras/curvas_red_neuronal.png"><figcaption><b>Figura 4.</b> Curvas de aprendizaje del ajuste final de la red, medidas sin
+<i>dropout</i>. La pérdida del tramo de detención temprana se estabiliza y el entrenamiento se detiene al dejar de mejorar; se conservan los pesos de
+la mejor época. El tramo de detención (los meses más recientes) es más fácil de ordenar que el promedio del entrenamiento, por eso su ROC-AUC es mayor.</figcaption></figure>
+<h3>5.5 Métricas, umbral y regla de selección</h3>
+<p>Con 6,8 % de positivos, la exactitud no es informativa: predecir siempre «a tiempo» acierta más del 93 %. Las métricas se eligieron
+por el costo de cada error. Como un falso negativo cuesta mucho más que una alerta (Tabla 1) y la operación tiene capacidad limitada, lo que importa es
+<b>ordenar</b> bien los pedidos: la métrica principal es el área bajo la curva precisión-recall (PR-AUC, <i>average precision</i>; Saito y Rehmsmeier,
+2015), cuyo valor de azar es la tasa de positivos, y la complementamos con la captura de retrasos en el <i>k</i> % de pedidos de mayor riesgo. Reportamos
+también ROC-AUC, matriz de confusión, precisión, sensibilidad (<i>recall</i>) y F1 de la clase tardía. El sobreajuste se diagnostica con la brecha de
+ROC-AUC entre entrenamiento y validación, porque el PR-AUC depende de la tasa de positivos y ésta cambia entre periodos. El umbral de cada modelo es el
+que maximiza el F1 sobre sus predicciones fuera de fold; con probabilidades calibradas, el umbral óptimo por costo sería
+p* = C<sub>FP</sub> / (C<sub>FP</sub> + C<sub>FN</sub>) (Elkan, 2001). La regla de selección se fijó antes de ver resultados: mayor PR-AUC promedio en
+validación y, en caso de empate (diferencia menor que 0,005), el modelo más simple (logística, Random Forest, XGBoost, red
+neuronal).</p>
 
-<h3>3.3 Modelos, selección de variables e hiperparámetros</h3>
-<p>Se compararon cuatro modelos: regresión logística con pesos balanceados (línea base), Random Forest [3], XGBoost [4] y un perceptrón multicapa
-en Keras [5]; los modelos clásicos se implementaron con scikit-learn [2]. Para cada modelo clásico se siguió la misma secuencia: (1) eliminación recursiva de variables con validación cruzada (RFECV [7]),
-eliminando el 10 % de variables menos importantes por ronda según los coeficientes o la importancia propia del modelo; (2) búsqueda aleatoria de
-hiperparámetros [8] sobre las variables elegidas. Ambos pasos usan los mismos cinco folds y la métrica PR-AUC. Como una red no ofrece una medida
-de importancia directa, su selección de variables comparó conjuntos candidatos (todas, el RFECV de cada modelo clásico, su unión y su
-intersección), seguida de una búsqueda sobre arquitectura, <i>dropout</i>, regularización L2, tasa de aprendizaje y tamaño de lote. El
-<i>early stopping</i> de la red usa la cola más reciente (15 %) del entrenamiento de cada fold, nunca el fold de validación.</p>
-
-<h3>3.4 Métricas, umbral y regla de selección</h3>
-<p>Con 6,8 % de positivos, la exactitud no es informativa: predecir siempre «a tiempo» acierta más del 93 %. La métrica principal es
-el área bajo la curva precisión-recall (PR-AUC, <i>average precision</i>) [6], cuyo valor de azar es la tasa de positivos; reportamos también
-ROC-AUC y precisión, recall y F1 de la clase tardía. El sobreajuste se diagnostica con la brecha de ROC-AUC entre entrenamiento y validación,
-porque el PR-AUC depende de la tasa de positivos y ésta cambia entre periodos. El umbral de decisión de cada modelo es el que maximiza el F1 sobre
-sus predicciones fuera de fold. La regla de selección se fijó antes de ver resultados: mayor PR-AUC promedio en validación y, en caso de empate
-(diferencia menor que 0,005), el modelo más simple (logística, Random Forest, XGBoost, red neuronal).</p>
-
-<h2>4. Resultados</h2>
-<h3>4.1 Comparación en validación temporal</h3>
-<p>La Tabla 2 resume el desempeño en los cinco folds. Los modelos Regresión Logística, Random Forest y XGBoost quedaron a menos de 0,005 de PR-AUC entre sí; por la regla de simplicidad definida antes de ver los resultados, el mejor modelo clásico es <b>Regresión Logística</b>. La red neuronal superó al mejor modelo clásico en validación (PR-AUC 0,190 frente a
+<h2>6. Resultados</h2>
+<h3>6.1 Comparación en validación temporal</h3>
+<p>La Tabla 6 resume el desempeño en los cinco folds. Los modelos Regresión Logística, Random Forest y XGBoost quedaron a menos de 0,005 de PR-AUC entre sí; por la regla de simplicidad definida antes de ver los resultados, el mejor modelo clásico es <b>Regresión Logística</b>. La red neuronal superó al mejor modelo clásico en validación (PR-AUC 0,190 frente a
 0,153). La desviación entre folds es grande para todos los modelos y sigue a la tasa de retraso de cada periodo
-(Figura 4): los folds con oleadas de retraso son más fáciles de ordenar, y el primero, con menos de 3 % de positivos y sólo cinco meses de historia,
-es el más difícil.</p>
-<div class="tcap"><b>Tabla 2.</b> Validación cruzada temporal (promedio de 5 folds). «× azar» = PR-AUC / tasa de tardíos fuera de fold (8,30 %).</div><table><thead><tr><th>Modelo</th><th>Variables</th><th>PR-AUC val</th><th>× azar</th><th>ROC-AUC val</th><th>ROC-AUC train</th><th>Brecha ROC</th><th>F1 (OOF)</th></tr></thead><tbody><tr><td>Red Neuronal</td><td>35</td><td>0,190 ± 0,132</td><td>2,28</td><td>0,675</td><td>0,757</td><td>0,081</td><td>0,227</td></tr><tr><td>Random Forest</td><td>105</td><td>0,158 ± 0,091</td><td>1,90</td><td>0,660</td><td>0,867</td><td>0,207</td><td>0,270</td></tr><tr><td>XGBoost</td><td>35</td><td>0,157 ± 0,088</td><td>1,90</td><td>0,644</td><td>0,841</td><td>0,198</td><td>0,231</td></tr><tr class=win><td>Regresión Logística</td><td>65</td><td>0,153 ± 0,100</td><td>1,85</td><td>0,650</td><td>0,726</td><td>0,076</td><td>0,227</td></tr></tbody></table>
-<figure><img src="../figuras/comparacion_cv.png"><figcaption><b>Figura 4.</b> Izquierda: PR-AUC de validación (promedio ± desviación). Centro: ROC-AUC de
+(Figura 5): los folds con oleadas de retraso son más fáciles de ordenar y el primero, con menos de 3 % de positivos y sólo cinco meses de historia, es
+el más difícil. La brecha de ROC-AUC entre entrenamiento y validación de la red (0,081) es similar a la de la
+regresión logística (0,076) y menos de la mitad que la de Random Forest
+(0,207) y XGBoost (0,198): la detención temprana controló el sobreajuste.</p>
+<div class="tcap"><b>Tabla 6.</b> Validación cruzada temporal (promedio de 5 folds). «× azar» = PR-AUC / tasa de tardíos fuera de fold (8,30 %).
+Precisión y recall con el umbral de cada modelo.</div><table class=''><thead><tr><th>Modelo</th><th>Variables</th><th>PR-AUC val</th><th>× azar</th><th>ROC-AUC val</th><th>ROC-AUC train</th><th>Brecha ROC</th><th>Precisión</th><th>Recall</th><th>F1 (OOF)</th></tr></thead><tbody><tr><td>Red Neuronal</td><td>35</td><td>0,190 ± 0,132</td><td>2,28</td><td>0,675</td><td>0,757</td><td>0,081</td><td>0,190</td><td>0,466</td><td>0,227</td></tr><tr><td>Random Forest</td><td>105</td><td>0,158 ± 0,091</td><td>1,90</td><td>0,660</td><td>0,867</td><td>0,207</td><td>0,160</td><td>0,359</td><td>0,270</td></tr><tr><td>XGBoost</td><td>35</td><td>0,157 ± 0,088</td><td>1,90</td><td>0,644</td><td>0,841</td><td>0,198</td><td>0,166</td><td>0,309</td><td>0,231</td></tr><tr class=win><td>Regresión Logística</td><td>65</td><td>0,153 ± 0,100</td><td>1,85</td><td>0,650</td><td>0,726</td><td>0,076</td><td>0,174</td><td>0,256</td><td>0,227</td></tr></tbody></table>
+<figure><img src="../figuras/comparacion_cv.png"><figcaption><b>Figura 5.</b> Izquierda: PR-AUC de validación (promedio ± desviación). Centro: ROC-AUC de
 entrenamiento (gris) y validación (color); la brecha indica sobreajuste. Derecha: curvas precisión-recall de las predicciones fuera de fold.</figcaption></figure>
-<div class="tcap"><b>Tabla 3.</b> Variables e hiperparámetros elegidos.</div><table><thead><tr><th>Modelo</th><th>Variables</th><th>Hiperparámetros elegidos</th></tr></thead><tbody><tr><td>Regresión Logística</td><td>65</td><td class=l>C = 0,0010; penalty = l2; solver = liblinear</td></tr><tr><td>Random Forest</td><td>105</td><td class=l>n_estimators = 200; min_samples_leaf = 100; max_samples = 0,8000; max_features = sqrt; max_depth = 12; class_weight = balanced_subsample</td></tr><tr><td>XGBoost</td><td>35</td><td class=l>colsample_bytree = 0,5000; learning_rate = 0,0772; max_depth = 3; min_child_weight = 20; n_estimators = 200; reg_lambda = 0,1914; scale_pos_weight = 6; subsample = 0,6000</td></tr><tr><td>Red Neuronal</td><td>35 (conjunto: RFECV XGBoost)</td><td class=l>capas = (64, 32, 16); dropout = 0,1000; l2 = 0,0100; lr = 0,0003; batch = 256</td></tr></tbody></table>
+<div class="tcap"><b>Tabla 7.</b> Variables e hiperparámetros elegidos.</div><table class=''><thead><tr><th>Modelo</th><th>Variables</th><th>Hiperparámetros elegidos</th></tr></thead><tbody><tr><td>Regresión Logística</td><td class=l>65</td><td class=l>C = 0,001007; penalty = l2; solver = liblinear</td></tr><tr><td>Random Forest</td><td class=l>105</td><td class=l>n_estimators = 200; min_samples_leaf = 100; max_samples = 0,8; max_features = sqrt; max_depth = 12; class_weight = balanced_subsample</td></tr><tr><td>XGBoost</td><td class=l>35</td><td class=l>colsample_bytree = 0,5; learning_rate = 0,07723; max_depth = 3; min_child_weight = 20; n_estimators = 200; reg_lambda = 0,1914; scale_pos_weight = 6; subsample = 0,6</td></tr><tr><td>Red Neuronal</td><td class=l>35 (conjunto: RFECV XGBoost)</td><td class=l>capas = (64, 32, 16); dropout = 0,1; l2 = 0,01; lr = 0,0003; batch = 256</td></tr></tbody></table>
 
-<h3>4.2 Prueba final</h3>
-<p>El periodo de prueba se abrió una sola vez para el mejor modelo clásico y la red neuronal (Tabla 4). En prueba ambos modelos resultaron prácticamente equivalentes (PR-AUC 0,098 y 0,095; ROC-AUC 0,716 y 0,729): la ventaja de la red en validación no se sostuvo en el futuro. Los valores absolutos son menores que en validación porque el periodo de prueba tiene menos retrasos (4,4 %); la mejora
-relativa frente al azar es del orden de 2,2 veces para Regresión Logística y 2,2 para la red. En términos
-operativos (Tabla 5, Figura 5), revisar el 10 % de pedidos con mayor riesgo permite anticipar el 25 % de los
-retrasos, y el 20 % de pedidos concentra el 39 %.</p>
-<p>El umbral fijo de probabilidad elegido en validación no se transfirió bien: en prueba marca el 56 % de los pedidos, con
-recall alto (86 %) pero precisión baja (7 %). Esto ocurre porque la tasa de retraso bajó y porque
-el umbral se eligió sobre predicciones de cinco modelos de fold con escalas de probabilidad distintas. La métrica independiente del umbral
-(PR-AUC) y la operación por capacidad (revisar el <i>k</i> % de mayor riesgo) son robustas a esa deriva.</p>
-<div class="tcap"><b>Tabla 4.</b> Desempeño en el periodo de prueba (25 350 pedidos, 1 115 tardíos). El umbral se eligió en validación.</div><table><thead><tr><th>Modelo</th><th>PR-AUC CV</th><th>PR-AUC test</th><th>× azar</th><th>ROC-AUC</th><th>Precisión</th><th>Recall</th><th>F1</th><th>Umbral</th></tr></thead><tbody><tr class=win><td>Regresión Logística</td><td>0,153</td><td>0,098</td><td>2,23</td><td>0,716</td><td>0,068</td><td>0,865</td><td>0,126</td><td>0,60</td></tr><tr><td>Red Neuronal</td><td>0,190</td><td>0,095</td><td>2,16</td><td>0,729</td><td>0,068</td><td>0,871</td><td>0,126</td><td>0,61</td></tr></tbody></table>
-<figure><img src="../figuras/test_final.png"><figcaption><b>Figura 5.</b> Matrices de confusión y curvas precisión-recall en el periodo de prueba.</figcaption></figure>
-<div class="tcap"><b>Tabla 5.</b> Captura de retrasos al revisar el <i>k</i> % de pedidos con mayor riesgo (prueba).</div><table><thead><tr><th>Pedidos revisados</th><th>Tardíos capturados (Regresión Logística)</th><th>Precisión</th><th>Lift</th><th>Tardíos capturados (red)</th></tr></thead><tbody><tr><td>5 %</td><td>15,6 %</td><td>13,7 %</td><td>3,12</td><td>14,0 %</td></tr><tr><td>10 %</td><td>24,9 %</td><td>11,0 %</td><td>2,49</td><td>23,8 %</td></tr><tr><td>20 %</td><td>39,4 %</td><td>8,7 %</td><td>1,97</td><td>43,5 %</td></tr><tr><td>30 %</td><td>56,1 %</td><td>8,2 %</td><td>1,87</td><td>62,1 %</td></tr></tbody></table>
+<h3>6.2 Prueba final</h3>
+<p>El periodo de prueba se abrió una sola vez para el mejor modelo clásico y la red neuronal (Tabla 8). En prueba ambos modelos resultaron prácticamente equivalentes (PR-AUC 0,098 y 0,095; ROC-AUC 0,716 y 0,729): la ventaja de la red en validación no se sostuvo en el futuro. Los valores absolutos son menores
+que en validación porque el periodo de prueba tiene menos retrasos (4,4 %); la mejora relativa frente al azar es de
+2,2 veces para Regresión Logística y 2,2 para la red. El umbral fijo de probabilidad elegido en validación
+no se transfirió bien: en prueba marca el 56 % de los pedidos, con recall alto (86 %) pero precisión baja
+(7 %) (Figura 6). Esto ocurre porque la tasa de retraso bajó y porque el umbral se eligió sobre predicciones de cinco modelos
+de fold con escalas de probabilidad distintas. La PR-AUC y la operación por capacidad son robustas a esa deriva.</p>
+<div class="tcap"><b>Tabla 8.</b> Desempeño en el periodo de prueba (25 350 pedidos, 1 115 tardíos). El umbral se eligió en validación.</div><table class=''><thead><tr><th>Modelo</th><th>PR-AUC CV</th><th>PR-AUC prueba</th><th>× azar</th><th>ROC-AUC</th><th>Precisión</th><th>Recall</th><th>F1</th><th>Umbral</th></tr></thead><tbody><tr class=win><td>Regresión Logística</td><td>0,153</td><td>0,098</td><td>2,23</td><td>0,716</td><td>0,068</td><td>0,865</td><td>0,126</td><td>0,60</td></tr><tr><td>Red Neuronal</td><td>0,190</td><td>0,095</td><td>2,16</td><td>0,729</td><td>0,068</td><td>0,871</td><td>0,126</td><td>0,61</td></tr></tbody></table>
+<figure><img src="../figuras/test_final.png"><figcaption><b>Figura 6.</b> Matrices de confusión y curvas precisión-recall en el periodo de prueba.</figcaption></figure>
 
-<h3>4.3 Variables relevantes</h3>
-<p>Las variables con mayor peso en Regresión Logística son: días de entrega prometidos (10,2 %), tasa de retraso del sistema (30 días) (9,2 %), pedidos de los últimos 7 días (8,1 %), same state (4,7 %), entregas del sistema (30 días) (4,1 %). El patrón es coherente con el análisis exploratorio: la promesa de entrega, la
-saturación reciente del sistema y el historial de la ruta y del vendedor explican la mayor parte del riesgo.</p>
-<figure class="m"><img src="../figuras/importancia_final.png"><figcaption><b>Figura 6.</b> Importancia relativa de las variables del mejor modelo clásico.</figcaption></figure>
+<h3>6.3 Operación por capacidad y punto de equilibrio</h3>
+<p>Operar por capacidad significa revisar cada día el <i>k</i> % de pedidos con mayor riesgo, en lugar de usar un umbral de probabilidad. Revisando el
+10 % se anticipa el 25 % de los retrasos con unas 21 alertas diarias; revisando
+el 20 %, el 39 % con unas 42 (Tabla 9). La última columna da el punto de
+equilibrio: cuántas alertas cuesta cada retraso anticipado y, por tanto, cuántas veces debe valer gestionar un retraso frente al costo de una alerta
+para que la acción convenga.</p>
+<div class="tcap"><b>Tabla 9.</b> Captura de retrasos y punto de equilibrio al revisar el <i>k</i> % de pedidos con mayor riesgo (prueba, 121 días).</div><table class=''><thead><tr><th>Pedidos revisados</th><th>Alertas</th><th>Alertas / día</th><th>Tardíos anticipados (Regresión Logística)</th><th>Precisión</th><th>Lift</th><th>Alertas por retraso anticipado</th><th>Captura de la red</th></tr></thead><tbody><tr><td>5 %</td><td>1 268</td><td>10</td><td>174 (15,6 %)</td><td>13,7 %</td><td>3,12</td><td>7,3</td><td>14,0 %</td></tr><tr><td>10 %</td><td>2 535</td><td>21</td><td>278 (24,9 %)</td><td>11,0 %</td><td>2,49</td><td>9,1</td><td>23,8 %</td></tr><tr><td>20 %</td><td>5 070</td><td>42</td><td>439 (39,4 %)</td><td>8,7 %</td><td>1,97</td><td>11,5</td><td>43,5 %</td></tr><tr><td>30 %</td><td>7 605</td><td>63</td><td>625 (56,1 %)</td><td>8,2 %</td><td>1,87</td><td>12,2</td><td>62,1 %</td></tr></tbody></table>
 
-<h2>5. Discusión</h2>
-<p><b>Implicaciones.</b> El modelo no elimina el retraso, pero ordena los pedidos por riesgo con una calidad de alrededor de 2,2 veces el azar, lo que
-permite concentrar recursos limitados. El umbral es una palanca de negocio: para acciones baratas, como avisar al cliente, conviene un umbral bajo
-(más recall); para intervenciones costosas, uno alto (más precisión). Proponemos un piloto de alertas proactivas sobre el 10–20 % de pedidos de
-mayor riesgo, medido con un experimento A/B sobre la proporción de reseñas negativas.</p>
-<p><b>Limitaciones.</b> (i) Deriva temporal: la tasa de retraso varía de 1 % a 19 % entre meses, lo que se refleja en la alta variabilidad entre
-folds y en la diferencia entre validación y prueba. (ii) Faltan variables exógenas determinantes, como transportista, clima, huelgas o festivos.
-(iii) La fecha prometida por Olist ya incorpora un margen (el pedido típico llega 12 días antes), por lo que los retrasos
-restantes son, en buena medida, eventos difíciles de anticipar. (iv) Un umbral fijo de probabilidad es frágil ante la deriva; recomendamos fijar la capacidad de revisión o recalibrar periódicamente.
-(v) Los mismos folds se usaron para elegir variables, hiperparámetros y umbral, por
-lo que las métricas de validación son optimistas; por eso reportamos un periodo de prueba aislado. (vi) En iteraciones anteriores del proyecto se
-consultó el periodo de prueba; la versión final fijó todas las decisiones con validación cruzada antes de evaluarlo.</p>
+<h3>6.4 Comparación contra la solución más simple</h3>
+<p>Para saber si hace falta un modelo, lo comparamos con reglas de una sola variable que un analista podría usar sin machine learning (Tabla 10,
+Figura 7). Para que la comparación sea justa, la regla se eligió igual que el modelo: con el periodo de entrenamiento. La regla elegida
+(◆ historial de la ruta) obtiene en prueba una PR-AUC de 0,051, apenas 1,2 veces el azar,
+frente a 0,098 de la regresión logística: varias señales que funcionaban en entrenamiento se desploman en el periodo de prueba, mientras que
+los modelos multivariables conservan su ventaja. Por honestidad reportamos también un resultado <i>a posteriori</i>: la regla de
+días prometidos (◇) alcanza en prueba una PR-AUC de 0,106, mayor que la de los modelos, aunque con
+menor ROC-AUC (0,674 frente a 0,716) y una captura similar en el 20 % de mayor riesgo. En entrenamiento esa regla
+tenía una PR-AUC de 0,074 y no se habría elegido: la importancia de la promesa de entrega cambió en el periodo de prueba, lo que
+refuerza la necesidad de reentrenar y monitorear el modelo.</p>
+<div class="tcap"><b>Tabla 10.</b> Modelos frente a reglas de una sola variable en el periodo de prueba. ◆ regla elegida con entrenamiento;
+◇ mejor regla sólo a posteriori.</div><table class=''><thead><tr><th>Método</th><th>PR-AUC train</th><th>PR-AUC prueba</th><th>× azar</th><th>ROC-AUC</th><th>Captura top 20 %</th></tr></thead><tbody><tr><td>Regla: días prometidos ◇</td><td>0,074</td><td>0,106</td><td>2,40</td><td>0,674</td><td>39,0 %</td></tr><tr class=win><td>Regresión Logística</td><td>—</td><td>0,098</td><td>2,23</td><td>0,716</td><td>39,4 %</td></tr><tr><td>Red Neuronal</td><td>—</td><td>0,095</td><td>2,16</td><td>0,729</td><td>43,5 %</td></tr><tr><td>Regla: pedidos de los últimos 7 días</td><td>0,131</td><td>0,076</td><td>1,73</td><td>0,674</td><td>40,4 %</td></tr><tr><td>Regla: carga reciente hacia el estado</td><td>0,111</td><td>0,055</td><td>1,24</td><td>0,502</td><td>22,2 %</td></tr><tr><td>Regla: historial de la ruta ◆</td><td>0,140</td><td>0,051</td><td>1,16</td><td>0,514</td><td>26,5 %</td></tr><tr><td>Regla: historial del vendedor</td><td>0,098</td><td>0,050</td><td>1,14</td><td>0,520</td><td>22,2 %</td></tr><tr><td>Regla: distancia</td><td>0,105</td><td>0,046</td><td>1,05</td><td>0,474</td><td>23,9 %</td></tr><tr><td>Azar</td><td>—</td><td>0,044</td><td>1,00</td><td>0,500</td><td>20,0 %</td></tr><tr><td>Regla: carga reciente del sistema</td><td>0,082</td><td>0,039</td><td>0,89</td><td>0,449</td><td>14,4 %</td></tr></tbody></table>
+<figure><img src="../figuras/baselines_test.png"><figcaption><b>Figura 7.</b> PR-AUC en el periodo de prueba de los modelos y de las reglas simples. La línea
+punteada es el azar.</figcaption></figure>
 
-<h2>6. Conclusiones</h2>
-<p>Con información disponible al momento de la compra es posible anticipar una parte relevante de las entregas tardías de Olist. El aporte
-principal no es la complejidad del modelo, sino el diseño de evaluación: variables <i>point-in-time</i>, validación temporal con purga y una regla de
-selección fijada de antemano. Bajo ese diseño, los tres modelos clásicos quedaron empatados y Regresión Logística los representa por simplicidad; la red neuronal fue la mejor en validación, pero en el periodo de prueba ambos fueron equivalentes. Por explicabilidad y costo recomendamos Regresión Logística para un piloto, con la red como modelo retador. Como trabajo futuro proponemos incorporar fuentes exógenas, calibrar las probabilidades para fijar umbrales por costo, modelar
-también los días de retraso y validar el impacto en un experimento controlado.</p>
-<p><b>Reproducibilidad.</b> El código está organizado en notebooks secuenciales (<code>01_limpieza</code> a <code>06_seleccion_y_test_final</code>) y
-módulos en <code>src/</code>; todos los resultados de este documento se generan automáticamente a partir de sus salidas.</p>
+<h3>6.5 Variables relevantes</h3>
+<p>Las variables con mayor peso en Regresión Logística son: días de entrega prometidos (10,2 %), tasa de retraso del sistema (30 días) (9,2 %), pedidos de los últimos 7 días (8,1 %), vendedor y cliente en el mismo estado (4,7 %), entregas del sistema (30 días) (4,1 %). El patrón es coherente con el análisis exploratorio: la promesa de entrega, la saturación
+reciente del sistema y el historial de la ruta y del vendedor explican la mayor parte del riesgo.</p>
+<figure class="m"><img src="../figuras/importancia_final.png"><figcaption><b>Figura 8.</b> Importancia relativa de las variables del mejor modelo clásico.</figcaption></figure>
 
-<h2>Referencias</h2>
+<h2>7. Retos, límites y conclusión</h2>
+<h3>7.1 Qué no se puede concluir con estos datos</h3>
+<ul>
+<li><b>Causalidad en las reseñas.</b> La caída de calificación de los pedidos tardíos es una asociación; parte podría deberse a factores que acompañan
+al retraso (por ejemplo, vendedores con peor servicio).</li>
+<li><b>Pérdida de clientes.</b> No encontramos evidencia de que el retraso reduzca la recompra a 180 días (p = 0,09); con una recompra general
+cercana al 3 %, estos datos no tienen potencia para medir ese efecto.</li>
+<li><b>Superioridad de la red.</b> La ventaja de la red en validación no se sostuvo en prueba: no podemos afirmar que sea mejor que la regresión logística.</li>
+<li><b>Efecto de las alertas.</b> El modelo anticipa retrasos, pero no sabemos cuántas reseñas negativas evitaría una alerta; eso sólo se mide con un
+experimento controlado.</li>
+<li><b>Generalización.</b> Los resultados corresponden a Olist en Brasil entre 2017 y 2018; no se pueden extrapolar a otros mercados o periodos sin
+validarlos.</li>
+</ul>
+<h3>7.2 Riesgos de usar el modelo</h3>
+<ul>
+<li><b>Deriva temporal.</b> La tasa de retraso cambió de forma significativa entre periodos (χ² = 310, p &lt; 0,001)
+y varía de 1 % a 19 % entre meses (Gama et al., 2014); la importancia de las variables también cambió (sección 6.4).</li>
+<li><b>Umbral frágil.</b> Un umbral fijo de probabilidad marcó el 56 % de los pedidos en prueba; recomendamos fijar la capacidad de
+revisión o recalibrar periódicamente.</li>
+<li><b>Retroalimentación.</b> Si las alertas evitan retrasos, las etiquetas futuras dejarán de reflejar el riesgo original; hay que registrar qué pedidos
+se intervinieron para reentrenar sin sesgo.</li>
+<li><b>Trato desigual por región.</b> El riesgo se concentra en algunos estados (Alagoas 25 %, Maranhão
+19 %, Ceará 17 % frente a São Paulo 4,5 % en entrenamiento). Las alertas
+deben mejorar el servicio en esas regiones, no restringir la venta ni encarecer el envío, y conviene monitorear el desempeño por estado.</li>
+<li><b>Optimismo del CV.</b> Los mismos folds eligieron variables, hiperparámetros y umbral, por lo que las métricas de validación son optimistas; por eso
+reportamos un periodo de prueba aislado. En iteraciones anteriores del proyecto se consultó el periodo de prueba; la versión final fijó todas las
+decisiones con validación cruzada antes de evaluarlo.</li>
+<li><b>Variables ausentes.</b> No hay datos de transportista, clima, huelgas o festivos, que explican oleadas como la de marzo de 2018.</li>
+</ul>
+<h3>7.3 Recomendación</h3>
+<p>Recomendamos lanzar un <b>piloto de alertas proactivas por capacidad</b> con la regresión logística: revisar cada día el 10–20 % de pedidos con mayor
+riesgo (unas 21–42 alertas diarias con el volumen del periodo de prueba), lo
+que anticipa el 25–39 % de los retrasos. Para acciones baratas, como avisar al
+cliente, conviene el extremo alto de ese rango; para intervenciones costosas, el bajo. La red neuronal debe quedar como modelo retador
+(<i>champion–challenger</i>), con reentrenamiento mensual con el mismo esquema temporal y monitoreo de la PR-AUC frente al azar. El piloto debe medirse con
+un experimento A/B cuyo indicador sea la proporción de reseñas de 1–2★ en pedidos tardíos.</p>
+<h3>7.4 Siguientes pasos</h3>
+<p>(i) Incorporar fuentes exógenas (transportista, clima, calendario de festivos); (ii) calibrar las probabilidades para fijar umbrales por
+costo; (iii) modelar también los días de retraso; y (iv) validar el impacto con el experimento del piloto.</p>
+<h3>7.5 Conclusión</h3>
+<p>Con información disponible al momento de la compra es posible anticipar una parte relevante de las entregas tardías de Olist: los modelos ordenan
+el riesgo 2,2 veces mejor que el azar en meses que nunca vieron y superan a la regla simple que se habría elegido sin
+machine learning. El aporte principal no es la complejidad del modelo, sino el diseño de evaluación: variables <i>point-in-time</i>, validación temporal
+con purga, una regla de selección fijada de antemano y una lectura de los resultados en términos de costo y capacidad.</p>
+<p><b>Reproducibilidad.</b> El código está en https://github.com/fabiolajrzflo/proyecto_final_equipo_3, organizado en notebooks secuenciales
+(<code>01_limpieza</code> a <code>07_estadistica_y_costo_del_error</code>) y módulos en <code>src/</code>; todas las cifras de este documento se
+generan automáticamente a partir de sus salidas.</p>
+
+<h2>8. Referencias</h2>
 <div class="ref">
-<p>[1] Olist. <i>Brazilian E-Commerce Public Dataset by Olist</i>. Kaggle, 2018. https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce</p>
-<p>[2] Pedregosa, F. et al. Scikit-learn: Machine Learning in Python. <i>Journal of Machine Learning Research</i>, 12, 2825–2830, 2011.</p>
-<p>[3] Breiman, L. Random Forests. <i>Machine Learning</i>, 45(1), 5–32, 2001.</p>
-<p>[4] Chen, T. y Guestrin, C. XGBoost: A Scalable Tree Boosting System. <i>Proceedings of KDD</i>, 785–794, 2016.</p>
-<p>[5] Chollet, F. et al. Keras. https://keras.io, 2015.</p>
-<p>[6] Saito, T. y Rehmsmeier, M. The Precision-Recall Plot Is More Informative than the ROC Plot When Evaluating Binary Classifiers on Imbalanced Datasets. <i>PLoS ONE</i>, 10(3), 2015.</p>
-<p>[7] Guyon, I., Weston, J., Barnhill, S. y Vapnik, V. Gene Selection for Cancer Classification using Support Vector Machines. <i>Machine Learning</i>, 46, 389–422, 2002.</p>
-<p>[8] Bergstra, J. y Bengio, Y. Random Search for Hyper-Parameter Optimization. <i>Journal of Machine Learning Research</i>, 13, 281–305, 2012.</p>
-<p>[9] López de Prado, M. <i>Advances in Financial Machine Learning</i>, cap. 7: Cross-Validation in Finance. Wiley, 2018.</p>
-<p>[10] Bergmeir, C. y Benítez, J. M. On the use of cross-validation for time series predictor evaluation. <i>Information Sciences</i>, 191, 192–213, 2012.</p>
+<p>Bergmeir, C., y Benítez, J. M. (2012). On the use of cross-validation for time series predictor evaluation. <i>Information Sciences, 191</i>, 192–213. https://doi.org/10.1016/j.ins.2011.12.028</p>
+<p>Bergstra, J., y Bengio, Y. (2012). Random search for hyper-parameter optimization. <i>Journal of Machine Learning Research, 13</i>, 281–305. https://jmlr.org/papers/v13/bergstra12a.html</p>
+<p>Breiman, L. (2001). Random forests. <i>Machine Learning, 45</i>(1), 5–32. https://doi.org/10.1023/A:1010933404324</p>
+<p>Chen, T., y Guestrin, C. (2016). XGBoost: A scalable tree boosting system. En <i>Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining</i> (pp. 785–794). Association for Computing Machinery. https://doi.org/10.1145/2939672.2939785</p>
+<p>Chollet, F., et al. (2015). <i>Keras</i> [Software]. https://keras.io</p>
+<p>Derrow-Pinion, A., She, J., Wong, D., Lange, O., Hester, T., Perez, L., Nunkesser, M., Lee, S., Guo, X., Wiltshire, B., Battaglia, P. W., Gupta, V., Li, A., Xu, Z., Sanchez-Gonzalez, A., Li, Y., y Veličković, P. (2021). ETA prediction with graph neural networks in Google Maps. En <i>Proceedings of the 30th ACM International Conference on Information &amp; Knowledge Management</i> (pp. 3767–3776). Association for Computing Machinery. https://doi.org/10.1145/3459637.3481916</p>
+<p>Elkan, C. (2001). The foundations of cost-sensitive learning. En <i>Proceedings of the Seventeenth International Joint Conference on Artificial Intelligence</i> (pp. 973–977). Morgan Kaufmann.</p>
+<p>Gama, J., Žliobaitė, I., Bifet, A., Pechenizkiy, M., y Bouchachia, A. (2014). A survey on concept drift adaptation. <i>ACM Computing Surveys, 46</i>(4), Artículo 44. https://doi.org/10.1145/2523813</p>
+<p>Grinsztajn, L., Oyallon, E., y Varoquaux, G. (2022). Why do tree-based models still outperform deep learning on typical tabular data? En <i>Advances in Neural Information Processing Systems 35: Datasets and Benchmarks Track</i>. https://doi.org/10.48550/arXiv.2207.08815</p>
+<p>Guyon, I., Weston, J., Barnhill, S., y Vapnik, V. (2002). Gene selection for cancer classification using support vector machines. <i>Machine Learning, 46</i>(1–3), 389–422. https://doi.org/10.1023/A:1012487302797</p>
+<p>Hu, X., Binaykiya, T., Frank, E., y Cirit, O. (2022). <i>DeeprETA: An ETA post-processing system at scale</i> (arXiv:2206.02127). arXiv. https://doi.org/10.48550/arXiv.2206.02127</p>
+<p>Kaufman, S., Rosset, S., Perlich, C., y Stitelman, O. (2012). Leakage in data mining: Formulation, detection, and avoidance. <i>ACM Transactions on Knowledge Discovery from Data, 6</i>(4), 1–21. https://doi.org/10.1145/2382577.2382579</p>
+<p>López de Prado, M. (2018). <i>Advances in financial machine learning</i>. Wiley.</p>
+<p>Olist. (2018). <i>Brazilian e-commerce public dataset by Olist</i> [Conjunto de datos]. Kaggle. https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce</p>
+<p>Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel, O., Blondel, M., Prettenhofer, P., Weiss, R., Dubourg, V., Vanderplas, J., Passos, A., Cournapeau, D., Brucher, M., Perrot, M., y Duchesnay, É. (2011). Scikit-learn: Machine learning in Python. <i>Journal of Machine Learning Research, 12</i>, 2825–2830. https://jmlr.org/papers/v12/pedregosa11a.html</p>
+<p>Prechelt, L. (1998). Early stopping — But when? En G. B. Orr y K.-R. Müller (Eds.), <i>Neural networks: Tricks of the trade</i> (pp. 55–69). Springer. https://doi.org/10.1007/3-540-49430-8_3</p>
+<p>Saito, T., y Rehmsmeier, M. (2015). The precision-recall plot is more informative than the ROC plot when evaluating binary classifiers on imbalanced datasets. <i>PLOS ONE, 10</i>(3), Artículo e0118432. https://doi.org/10.1371/journal.pone.0118432</p>
+<p>Salari, N., Liu, S., y Shen, Z.-J. M. (2022). Real-time delivery time forecasting and promising in online retailing: When will your package arrive? <i>Manufacturing &amp; Service Operations Management, 24</i>(3), 1421–1436. https://doi.org/10.1287/msom.2022.1081</p>
+<p>Shwartz-Ziv, R., y Armon, A. (2022). Tabular data: Deep learning is not all you need. <i>Information Fusion, 81</i>, 84–90. https://doi.org/10.1016/j.inffus.2021.11.011</p>
+<p>Srivastava, N., Hinton, G., Krizhevsky, A., Sutskever, I., y Salakhutdinov, R. (2014). Dropout: A simple way to prevent neural networks from overfitting. <i>Journal of Machine Learning Research, 15</i>, 1929–1958. https://jmlr.org/papers/v15/srivastava14a.html</p>
+<p>Wilson, E. B. (1927). Probable inference, the law of succession, and statistical inference. <i>Journal of the American Statistical Association, 22</i>(158), 209–212. https://doi.org/10.1080/01621459.1927.10502953</p>
+</div>
+
+<div class="anexo">
+<h2>Anexo A. Diccionario de datos</h2>
+<p>Variables del conjunto de modelado (<code>datos/processed/dataset_pedidos.parquet</code>), un registro por pedido. Los identificadores
+(<code>order_id</code>, <code>customer_id</code>, <code>main_seller_id</code>, <code>ruta</code>, código postal) y las fechas no entran al modelo.
+Las variables categóricas se codifican con <i>one-hot</i> antes de entrenar.</p>
+<div class="tcap"><b>Tabla A1.</b> Diccionario de datos.</div><table class='dicc'><thead><tr><th>Variable</th><th>Tipo</th><th>Descripción</th></tr></thead><tbody><tr><td class='l var'>delivery_late</td><td class=l>binaria (objetivo)</td><td class=l>1 si el pedido se entregó en un día posterior a la fecha estimada; 0 si llegó ese día o antes.</td></tr><tr><td class='l var'>label_conocida_en</td><td class=l>fecha (no entra al modelo)</td><td class=l>Instante en que se conoce el resultado: min(entrega, fecha estimada + 1 día). Base de las variables históricas y de la purga.</td></tr><tr><td class='l var'>purchase_weekday</td><td class=l>categórica</td><td class=l>Día de la semana de la compra (0 = lunes … 6 = domingo).</td></tr><tr><td class='l var'>franja_horaria</td><td class=l>categórica</td><td class=l>Franja de la hora de compra: madrugada (0–5 h), mañana (6–11), tarde (12–17), noche (18–23).</td></tr><tr><td class='l var'>estimated_delivery_days</td><td class=l>numérica</td><td class=l>Días entre la compra y la fecha de entrega prometida.</td></tr><tr><td class='l var'>customer_state</td><td class=l>categórica</td><td class=l>Estado del cliente.</td></tr><tr><td class='l var'>seller_state</td><td class=l>categórica</td><td class=l>Estado del vendedor principal (primer ítem del pedido).</td></tr><tr><td class='l var'>n_seller_states</td><td class=l>numérica</td><td class=l>Número de estados distintos de los vendedores del pedido.</td></tr><tr><td class='l var'>same_state</td><td class=l>binaria</td><td class=l>1 si vendedor principal y cliente están en el mismo estado.</td></tr><tr><td class='l var'>avg_distance_km,<br>max_distance_km</td><td class=l>numérica</td><td class=l>Distancia de Haversine media y máxima entre vendedor y cliente, con el centroide de cada código postal.</td></tr><tr><td class='l var'>total_items,<br>total_products,<br>total_sellers</td><td class=l>numérica</td><td class=l>Número de ítems, de productos distintos y de vendedores distintos del pedido.</td></tr><tr><td class='l var'>unique_product_categories</td><td class=l>numérica</td><td class=l>Número de categorías de producto distintas.</td></tr><tr><td class='l var'>main_category</td><td class=l>categórica</td><td class=l>Categoría del primer producto del pedido.</td></tr><tr><td class='l var'>total_price,<br>total_freight</td><td class=l>numérica</td><td class=l>Suma del precio y del flete de los ítems (R$).</td></tr><tr><td class='l var'>freight_ratio</td><td class=l>numérica</td><td class=l>Flete total / precio total.</td></tr><tr><td class='l var'>avg_product_weight,<br>max_product_weight</td><td class=l>numérica</td><td class=l>Peso medio y máximo de los productos (g).</td></tr><tr><td class='l var'>avg_product_length,<br>avg_product_height,<br>avg_product_width</td><td class=l>numérica</td><td class=l>Dimensiones medias de los productos (cm).</td></tr><tr><td class='l var'>avg_dias_limite_envio,<br>min_dias_limite_envio</td><td class=l>numérica</td><td class=l>Días entre la compra y la fecha límite para que el vendedor despache (media y mínimo de los ítems).</td></tr><tr><td class='l var'>total_payment</td><td class=l>numérica</td><td class=l>Suma de los pagos del pedido (R$).</td></tr><tr><td class='l var'>max_installments</td><td class=l>numérica</td><td class=l>Máximo número de mensualidades.</td></tr><tr><td class='l var'>payment_types</td><td class=l>numérica</td><td class=l>Número de medios de pago distintos.</td></tr><tr><td class='l var'>main_payment_type</td><td class=l>categórica</td><td class=l>Medio de pago más usado en el pedido.</td></tr><tr><td class='l var'>seller_late_rate,<br>seller_n_prev</td><td class=l>numérica</td><td class=l>Tasa de retraso suavizada (m = 20) y número de pedidos previos del vendedor, sólo con resultados conocidos antes de la compra.</td></tr><tr><td class='l var'>ruta_late_rate,<br>ruta_n_prev</td><td class=l>numérica</td><td class=l>Igual que la anterior, para la ruta estado del vendedor → estado del cliente.</td></tr><tr><td class='l var'>global_late_30d,<br>global_n_30d</td><td class=l>numérica</td><td class=l>Tasa de retraso suavizada y número de entregas cuyo resultado se conoció en los 30 días previos a la compra (todo el sistema).</td></tr><tr><td class='l var'>estado_late_30d</td><td class=l>numérica</td><td class=l>Tasa de retraso suavizada de las entregas hacia el estado del cliente conocidas en los 30 días previos.</td></tr><tr><td class='l var'>pedidos_ult_7d</td><td class=l>numérica</td><td class=l>Número de compras registradas en la plataforma en los 7 días previos (incluye canceladas).</td></tr></tbody></table>
 </div>
 </div></body></html>
