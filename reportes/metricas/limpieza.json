@@ -1,0 +1,8 @@
+{
+  "pedidos_originales": 99441,
+  "cancelados_o_no_disponibles": 1234,
+  "sin_fecha_de_entrega": 1737,
+  "censurados_fecha_estimada_posterior": 2,
+  "ultima_entrega_registrada": "2018-10-17 13:22:46",
+  "pedidos_limpios": 96468
+}

@@ -1,0 +1,10 @@
+{
+  "modelo__colsample_bytree": 0.5,
+  "modelo__learning_rate": 0.07722913335507808,
+  "modelo__max_depth": 3,
+  "modelo__min_child_weight": 20,
+  "modelo__n_estimators": 200,
+  "modelo__reg_lambda": 0.19135880487692303,
+  "modelo__scale_pos_weight": 6,
+  "modelo__subsample": 0.6
+}

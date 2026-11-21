@@ -1,0 +1,16 @@
+{
+  "modelo": "Regresión Logística",
+  "n_variables": 65,
+  "umbral": 0.5993036989640849,
+  "pr_auc_val_prom": 0.15324732270948718,
+  "pr_auc_val_desv": 0.09976432635255325,
+  "pr_auc_train_prom": 0.12431294494497065,
+  "roc_auc_val_prom": 0.6498538641902045,
+  "roc_auc_train_prom": 0.7257763280628874,
+  "pr_auc_todas_vars": 0.14449216508348828,
+  "pr_auc_rfecv": 0.14523866683607486,
+  "pr_auc_busqueda": 0.15324732270948718,
+  "n_variables_total": 105,
+  "segundos_rfecv": 6.347251892089844,
+  "segundos_busqueda": 53.11371898651123
+}

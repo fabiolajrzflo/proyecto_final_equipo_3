@@ -1,0 +1,5 @@
+{
+  "modelo__C": 0.0010071984838809194,
+  "modelo__penalty": "l2",
+  "modelo__solver": "liblinear"
+}

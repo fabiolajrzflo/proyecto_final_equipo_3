@@ -1,0 +1,11 @@
+# Entorno virtual (se recrea con requirements.txt) y cachés de Python / Jupyter
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+
+# Temporales de docs/build_pdf.py
+docs/.*.html

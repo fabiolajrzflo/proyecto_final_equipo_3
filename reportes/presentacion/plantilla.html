@@ -1,0 +1,922 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entregas a Tiempo · Olist</title>
+<style>
+:root{
+  --navy:#051c2c; --navy-2:#0b2e45; --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --bg:#ffffff; --plane:#f5f4f0; --plane-2:#ecebe6;
+  --accent:#2a78d6; --accent-soft:#cde2fb; --late:#e34948; --late-soft:#fbe3e3; --ontime:#2a78d6;
+  --lr:#2a78d6; --rf:#eb6834; --xgb:#1baf7a; --nn:#eda100; --good:#006300;
+  --serif: Georgia, "Iowan Old Style", "Times New Roman", serif;
+  --sans: "Helvetica Neue", Helvetica, Arial, system-ui, -apple-system, sans-serif;
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#0a1620;overflow:hidden;font-family:var(--sans);color:var(--ink)}
+#stage{position:absolute;width:1600px;height:900px;left:50%;top:50%;transform-origin:center center}
+.slide{position:absolute;inset:0;background:var(--bg);padding:84px 96px 70px;opacity:0;visibility:hidden;
+  transform:translateX(36px);transition:opacity .55s ease, transform .55s cubic-bezier(.2,.7,.2,1), visibility 0s linear .55s;overflow:hidden}
+.slide.active{opacity:1;visibility:visible;transform:none;transition:opacity .55s ease, transform .55s cubic-bezier(.2,.7,.2,1)}
+.slide.past{transform:translateX(-36px)}
+.tracker{position:absolute;top:34px;left:96px;right:96px;display:flex;gap:26px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#b9b7af}
+.tracker span.on{color:var(--accent);font-weight:700}
+.tracker::after{content:"";position:absolute;left:0;right:0;top:26px;height:1px;background:var(--grid)}
+h1.action{font-family:var(--serif);font-weight:400;font-size:42px;line-height:1.16;color:var(--navy);margin:14px 0 8px;max-width:1380px;letter-spacing:-.005em}
+h1.action em{font-style:normal;color:var(--accent)}
+h1.action em.late{color:var(--late)}
+.lead{font-size:21px;line-height:1.45;color:var(--ink-2);max-width:1250px;margin:0}
+.source{position:absolute;bottom:28px;left:96px;font-size:12.5px;color:var(--muted);max-width:1200px}
+.pagenum{position:absolute;bottom:28px;right:96px;font-size:12.5px;color:var(--muted)}
+.cols{display:grid;gap:56px;margin-top:34px}
+.c2{grid-template-columns:1.25fr 1fr}.c2b{grid-template-columns:1fr 1.25fr}.c3{grid-template-columns:repeat(3,1fr)}.c4{grid-template-columns:repeat(4,1fr)}
+.frag{opacity:0;transform:translateY(14px);transition:opacity .5s ease, transform .5s ease}
+.frag.on{opacity:1;transform:none}
+.sowhat{background:var(--navy);color:#fff;padding:24px 28px;border-radius:3px;font-size:20px;line-height:1.45}
+.sowhat b{color:#8fc1ff;font-weight:600}
+.sowhat .lbl{display:block;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#8fa6b8;margin-bottom:8px}
+.kpi{border-top:3px solid var(--navy);padding-top:16px}
+.kpi .n{font-family:var(--serif);font-size:64px;line-height:1;color:var(--navy)}
+.kpi .n.late{color:var(--late)} .kpi .n.acc{color:var(--accent)}
+.kpi .t{font-size:17px;color:var(--ink-2);margin-top:10px;line-height:1.4}
+.bul{list-style:none;padding:0;margin:0}
+.bul li{position:relative;padding-left:26px;font-size:20px;line-height:1.45;margin:0 0 16px;color:var(--ink)}
+.bul li::before{content:"";position:absolute;left:0;top:11px;width:10px;height:10px;background:var(--accent)}
+.bul li.r::before{background:var(--late)}
+.muted{color:var(--muted)} .small{font-size:15px}
+.chart{position:relative}
+.chart svg{display:block;overflow:visible}
+.chart text{font-family:var(--sans)}
+.tip{position:absolute;pointer-events:none;background:var(--navy);color:#fff;font-size:14px;padding:8px 11px;border-radius:3px;white-space:nowrap;opacity:0;transition:opacity .12s;z-index:5;transform:translate(-50%,-115%)}
+.legend{display:flex;gap:22px;font-size:15px;color:var(--ink-2);margin:6px 0 4px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:7px;vertical-align:-1px}
+/* animaciones de gráficas */
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes growx{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes pop{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.g-bar{transform-box:fill-box;transform-origin:bottom;animation:grow .8s cubic-bezier(.2,.7,.2,1) both}
+.g-barx{transform-box:fill-box;transform-origin:left;animation:growx .8s cubic-bezier(.2,.7,.2,1) both}
+.g-pop{transform-box:fill-box;transform-origin:center;animation:pop .45s cubic-bezier(.2,.9,.3,1.3) both}
+.g-fade{animation:fadein .6s ease both}
+.print .g-bar,.print .g-barx,.print .g-pop,.print .g-fade{animation:none!important}
+.print .slide,.print .frag{transition:none!important}
+/* portada y cierre */
+.cover{background:var(--navy);color:#fff;padding:0}
+.cover .inner{position:absolute;left:110px;top:200px;right:110px}
+.cover .kicker{font-size:15px;letter-spacing:.2em;text-transform:uppercase;color:#8fa6b8}
+.cover h1{font-family:var(--serif);font-weight:400;font-size:76px;line-height:1.06;margin:22px 0 26px;max-width:1150px}
+.cover h1 em{font-style:normal;color:#8fc1ff}
+.cover p{font-size:24px;color:#c9d6e0;max-width:1000px;line-height:1.45;margin:0}
+.cover .meta{position:absolute;left:110px;bottom:80px;font-size:16px;color:#8fa6b8;line-height:1.7}
+.cover .lines{position:absolute;right:-60px;top:0;bottom:0;width:640px;opacity:.9}
+/* diagrama de flujo */
+.flow{display:flex;align-items:stretch;gap:0;margin-top:40px}
+.flow .st{flex:1;background:var(--plane);border-top:3px solid var(--navy);padding:18px 16px 16px;min-height:150px}
+.flow .st h4{margin:0 0 8px;font-size:18px;color:var(--navy)}
+.flow .st p{margin:0;font-size:14.5px;color:var(--ink-2);line-height:1.4}
+.flow .st .num{font-family:var(--serif);font-size:30px;color:var(--accent);line-height:1;margin-bottom:6px}
+.flow .ar{width:26px;display:flex;align-items:center;justify-content:center;color:var(--axis);font-size:22px}
+.branch{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:22px}
+.branch .m{border:1px solid var(--grid);border-top:4px solid var(--c);padding:14px 16px;background:#fff}
+.branch .m h5{margin:0 0 6px;font-size:17px}
+.branch .m p{margin:0;font-size:14px;color:var(--ink-2);line-height:1.45}
+.final{margin-top:20px;display:flex;gap:18px}
+.final div{flex:1;background:var(--navy);color:#fff;padding:14px 18px;font-size:16px;border-radius:2px}
+.final div b{color:#8fc1ff}
+/* principios */
+.princ{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:26px}
+.princ .p{border-left:3px solid var(--accent);padding:4px 0 4px 18px}
+.princ .p h4{margin:0 0 6px;font-size:19px;color:var(--navy)}
+.princ .p p{margin:0;font-size:15.5px;color:var(--ink-2);line-height:1.45}
+/* tabla */
+table.t{border-collapse:collapse;width:100%;font-size:16px}
+table.t th{font-weight:600;color:var(--ink-2);text-align:right;padding:9px 12px;border-bottom:2px solid var(--navy);font-size:14px;letter-spacing:.02em}
+table.t th:first-child,table.t td:first-child{text-align:left}
+table.t td{padding:10px 12px;border-bottom:1px solid var(--grid);text-align:right;font-variant-numeric:tabular-nums}
+table.t tr.win td{background:#eef5fd;font-weight:600}
+.dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:9px;vertical-align:0}
+/* slider */
+.slider{margin-top:18px}
+.slider input{width:100%;accent-color:var(--accent)}
+.readout{font-family:var(--serif);font-size:30px;color:var(--navy);line-height:1.3}
+.readout b{color:var(--accent);font-weight:400}
+/* horizontes */
+.hz{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:30px}
+.hz .h{background:var(--plane);padding:24px 24px 22px;border-top:4px solid var(--navy);min-height:300px}
+.hz .h .w{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.hz .h h4{font-family:var(--serif);font-weight:400;font-size:26px;color:var(--navy);margin:10px 0 12px;line-height:1.2}
+.hz .h p{font-size:16px;color:var(--ink-2);line-height:1.5;margin:0 0 10px}
+.question{position:absolute;left:96px;right:96px;top:250px}
+.question .q{font-family:var(--serif);font-size:62px;line-height:1.15;color:var(--navy);max-width:1250px}
+.question .q em{font-style:normal;color:var(--accent)}
+/* tablero de Power BI embebido (carga diferida; respaldo estático en PDF / sin internet) */
+.pbi-slide h1.action{margin-bottom:14px;white-space:nowrap}
+.pbi-slide .source{max-width:720px}
+.pbi{position:relative;width:100%;aspect-ratio:1140/541.25;background:var(--plane);border:1px solid var(--grid);border-radius:3px;overflow:hidden}
+.pbi:fullscreen{border:0;border-radius:0;background:#fff}
+.pbi iframe{position:absolute;inset:0;width:100%;height:100%;border:0;opacity:0;transition:opacity .6s ease}
+.pbi.listo iframe{opacity:1}
+.pbi .ph{transition:opacity .6s ease}
+.pbi.listo .ph{opacity:0}
+.pbi .ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:40px;background-position:center;background-repeat:no-repeat;background-size:contain}
+.pbi .ph .t1{font-family:var(--serif);font-size:30px;color:var(--navy)}
+.pbi .ph .t2{font-size:16px;color:var(--ink-2);max-width:660px;line-height:1.45}
+.pbi .spin{display:none;width:34px;height:34px;border-radius:50%;border:3px solid var(--grid);border-top-color:var(--accent);animation:spin 1s linear infinite}
+.pbi[data-estado="cargando"] .spin{display:block}
+.pbi .cap{position:absolute;left:14px;top:12px;background:rgba(5,28,44,.88);color:#fff;font-size:13px;padding:5px 10px;border-radius:3px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pbi-bar{position:absolute;right:150px;bottom:20px;display:flex;align-items:center;gap:8px}
+.pbi-bar .estado{font-size:13px;color:var(--ink-2);margin-right:8px;white-space:nowrap}
+.pbi-bar .estado i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;vertical-align:1px;background:var(--muted)}
+.pbi-bar button,.pbi-bar a{font:600 13px var(--sans);color:var(--navy);background:#fff;border:1px solid var(--axis);border-radius:3px;padding:6px 11px;cursor:pointer;text-decoration:none;line-height:1.2}
+.pbi-bar button:hover,.pbi-bar a:hover{border-color:var(--navy);background:var(--plane)}
+.print .pbi-bar button,.print .pbi-bar .estado{display:none}
+#pbi-hint{position:fixed;top:12px;left:50%;transform:translateX(-50%);background:rgba(5,28,44,.92);color:#fff;font-size:14px;padding:7px 14px;border-radius:3px;opacity:0;pointer-events:none;transition:opacity .3s;z-index:21}
+body.en-tablero #pbi-hint{opacity:1}
+/* notas y controles */
+#notes{position:fixed;left:0;right:0;bottom:0;max-height:34vh;overflow:auto;background:rgba(5,28,44,.96);color:#e8eef3;font-size:17px;line-height:1.5;padding:16px 28px 22px;display:none;z-index:20}
+#notes h6{margin:0 0 6px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#8fa6b8}
+#notes.on{display:block}
+#timer{position:fixed;top:12px;right:16px;background:rgba(5,28,44,.9);color:#fff;font:600 16px var(--sans);padding:6px 12px;border-radius:3px;display:none;z-index:20}
+#timer.on{display:block}
+#progress{position:fixed;left:0;bottom:0;height:3px;background:var(--accent);transition:width .4s ease;z-index:19}
+#help{position:fixed;top:10px;left:50%;transform:translateX(-50%);color:#8fa6b8;font-size:13px;opacity:.0;transition:opacity .4s;z-index:19}
+aside.notes{display:none}
+/* impresión / PDF */
+@page{size:1600px 900px;margin:0}
+@media print{
+  html,body{overflow:visible;height:auto;background:#fff}
+  #stage{position:static;transform:none!important;width:1600px;height:auto}
+  .slide{position:relative;opacity:1!important;visibility:visible!important;transform:none!important;width:1600px;height:900px;page-break-after:always;break-after:page;transition:none}
+  .frag{opacity:1!important;transform:none!important}
+  .slide:last-of-type{page-break-after:auto;break-after:auto}
+  #notes,#timer,#progress,#help,#pbi-hint,#tip{display:none!important}
+}
+</style>
+</head>
+<body>
+<div id="stage">
+
+<!-- 1 · PORTADA -->
+<section class="slide cover" data-sec="">
+  <svg class="lines" viewBox="0 0 640 900" aria-hidden="true" id="coverlines"></svg>
+  <div class="inner">
+    <div class="kicker">Proyecto final · Machine Learning aplicado a e-commerce</div>
+    <h1>Anticipar el retraso <em>antes</em> de que el cliente lo sufra</h1>
+    <p>Un modelo que estima, al momento de la compra, qué pedidos de Olist llegarán tarde, para actuar antes de que se conviertan en una reseña de una estrella.</p>
+  </div>
+  <div class="meta">Equipo 3 · Diplomado IA Generativa, Business Intelligence y Ciencia de Datos<br>Noviembre 2026</div>
+  <aside class="notes">Apertura (30 s). Presentarse. Una sola idea: vamos a mostrar que se puede anticipar qué pedidos llegarán tarde usando sólo lo que se sabe al momento de la compra, y qué vale eso para el negocio.</aside>
+</section>
+
+<!-- 2 · RESUMEN EJECUTIVO -->
+<section class="slide" data-sec="Resumen">
+  <h1 class="action">Resumen ejecutivo: los retrasos son poco frecuentes pero destruyen la satisfacción, y un modelo puede anticipar <em>una parte relevante</em> de ellos</h1>
+  <div class="cols c3" style="margin-top:44px">
+    <div class="kpi frag"><div class="n late"><span class="count" data-v="pct12_t" data-dec="0" data-suf="%"></span></div>
+      <div class="t">de los pedidos tardíos recibe <b>1–2 estrellas</b>, contra <span data-v="pct12_a_txt"></span> de los que llegan a tiempo.</div></div>
+    <div class="kpi frag"><div class="n acc"><span class="count" data-v="cap20" data-dec="0" data-suf="%"></span></div>
+      <div class="t">de los retrasos del periodo de prueba se concentran en el <b>20 % de pedidos</b> que el modelo marca como más riesgosos.</div></div>
+    <div class="kpi frag"><div class="n"><span class="count" data-v="lift_pr" data-dec="1" data-suf="×"></span></div>
+      <div class="t">mejor que el azar ordenando pedidos por riesgo (PR-AUC en test, modelo <span data-v="mejor"></span>).</div></div>
+  </div>
+  <div class="sowhat frag" style="margin-top:48px"><span class="lbl">Recomendación</span>
+    Lanzar un <b>piloto de alertas proactivas</b> sobre el 10–20 % de pedidos con mayor riesgo usando la <b>regresión logística</b> (tan precisa como la red neuronal en test, más simple y explicable), con la red como modelo retador y re-entrenamiento mensual.</div>
+  <div class="source">Fuente: Olist Brazilian E-commerce (Kaggle), 96 mil pedidos 2017–2018. Test = mayo–agosto 2018, nunca usado para tomar decisiones.</div>
+  <aside class="notes">Respuesta primero (1.5 min). Tres números: el costo (reseñas), la capacidad del modelo (captura en el top 20 %) y su calidad frente al azar. Cerrar con la recomendación. El resto de la presentación demuestra cada número.</aside>
+</section>
+
+<!-- 3 · SITUACIÓN -->
+<section class="slide" data-sec="Contexto">
+  <h1 class="action">Olist conecta a miles de vendedores con clientes en todo Brasil; <em class="late"><span data-v="tasa_txt"></span> de los pedidos</em> llega después de la fecha prometida</h1>
+  <div class="cols c4" style="margin-top:56px">
+    <div class="kpi frag"><div class="n"><span class="count" data-v="pedidos_k" data-dec="0" data-suf=" mil"></span></div><div class="t">pedidos entregados analizados (2017 – ago 2018)</div></div>
+    <div class="kpi frag"><div class="n late"><span class="count" data-v="tasa" data-dec="1" data-suf="%"></span></div><div class="t">llegan tarde: un problema desbalanceado (≈ 1 de cada 15)</div></div>
+    <div class="kpi frag"><div class="n"><span class="count" data-v="dias_antes" data-dec="0" data-suf=" días"></span></div><div class="t">antes de lo prometido llega el pedido típico: la fecha ya trae "colchón"</div></div>
+    <div class="kpi frag"><div class="n"><span class="count" data-v="ret_med" data-dec="0" data-suf=" días"></span></div><div class="t">de retraso mediano cuando un pedido sí llega tarde</div></div>
+  </div>
+  <div class="cols c2" style="margin-top:60px">
+    <ul class="bul frag">
+      <li>Marketplace: el vendedor despacha y una transportista entrega; Olist promete la fecha al cliente.</li>
+      <li>Datos públicos reales: 9 tablas relacionales (pedidos, ítems, pagos, productos, vendedores, clientes, geolocalización, reseñas).</li>
+    </ul>
+    <div class="sowhat frag"><span class="lbl">Implicación</span>Con tan pocos retrasos, la <b>accuracy engaña</b>: decir siempre "a tiempo" acierta 93 %. Medimos con <b>PR-AUC</b>, recall y precisión de la clase "tardío".</div>
+  </div>
+  <div class="source">Fuente: Olist; análisis del equipo (notebooks 01–02).</div>
+  <aside class="notes">Contexto (1 min). Explicar el modelo de negocio y por qué el desbalance obliga a elegir bien la métrica.</aside>
+</section>
+
+<!-- 4 · COMPLICACIÓN: REVIEWS -->
+<section class="slide" data-sec="Problema">
+  <h1 class="action">Un pedido tardío cae de <em><span data-v="score_a"></span>★</em> a <em class="late"><span data-v="score_t"></span>★</em> en promedio: el retraso es el camino más corto a una reseña de una estrella</h1>
+  <div class="cols c2">
+    <div>
+      <div class="legend"><span><i style="background:var(--ontime)"></i>A tiempo</span><span><i style="background:var(--late)"></i>Tardío</span></div>
+      <div class="chart" id="ch-reviews"></div>
+    </div>
+    <div style="padding-top:30px">
+      <ul class="bul">
+        <li class="r frag"><b><span data-v="pct1_t"></span> %</b> de los pedidos tardíos recibe 1 estrella (vs. <span data-v="pct1_a"></span> % a tiempo).</li>
+        <li class="frag">Sólo <b><span data-v="pct5_t"></span> %</b> de los tardíos da 5 estrellas, contra <span data-v="pct5_a"></span> % de los puntuales.</li>
+        <li class="frag">La reseña es pública: afecta la reputación del vendedor y la conversión de futuros compradores.</li>
+      </ul>
+      <div class="sowhat frag" style="margin-top:26px"><span class="lbl">So what</span>Cada retraso que se anticipa es una oportunidad de <b>gestionar la expectativa</b> antes de que llegue la reseña.</div>
+    </div>
+  </div>
+  <div class="source">Fuente: reseñas de Olist unidas a pedidos (las reseñas se usan sólo para dimensionar el problema; nunca como variable del modelo).</div>
+  <aside class="notes">Complicación (1.5 min). Este es el gancho de negocio. Pasar el cursor sobre las barras para mostrar porcentajes exactos.</aside>
+</section>
+
+<!-- 5 · COMPLICACIÓN: OLEADAS -->
+<section class="slide" data-sec="Problema">
+  <h1 class="action">Los retrasos llegan en <em class="late">oleadas</em>: la tasa mensual pasó de 6 % a 19 % en dos meses, así que una regla fija no basta</h1>
+  <div class="chart" id="ch-mensual" style="margin-top:24px"></div>
+  <div class="cols c3" style="margin-top:18px;gap:36px">
+    <div class="frag" style="font-size:17px;line-height:1.45"><b>Black Friday 2017.</b> El volumen sube 60 % en un mes y el retraso llega a 12 %.</div>
+    <div class="frag" style="font-size:17px;line-height:1.45"><b>Feb–mar 2018.</b> El pico más alto (19 %) sin un cambio de volumen equivalente: saturación logística.</div>
+    <div class="frag" style="font-size:17px;line-height:1.45"><b>Implicación de diseño.</b> Split temporal, variables de <i>carga reciente</i> del sistema y no usar el mes como variable (memorizaría episodios).</div>
+  </div>
+  <div class="source">Tasa de retraso por mes de compra. Línea punteada: inicio del periodo de prueba (mayo 2018).</div>
+  <aside class="notes">1 min. El problema cambia con el tiempo; eso define cómo validamos: siempre entrenando con el pasado y probando con el futuro.</aside>
+</section>
+
+<!-- 6 · TABLERO POWER BI (demo en vivo) -->
+<section class="slide pbi-slide" data-sec="Dashboard">
+  <h1 class="action">Exploramos los datos <em>en vivo</em> con un tablero de Power BI</h1>
+  <div class="pbi" data-src="https://app.fabric.microsoft.com/reportEmbed?reportId=4af57836-05cd-4721-9ce8-4ae63dce20d6&amp;autoAuth=true&amp;ctid=0b76a8a5-b8db-4453-b1f3-5366b51dfa12">
+    <div class="ph">
+      <div class="spin"></div>
+      <div class="t1" id="pbi-t1">El tablero se carga al acercarte a esta lámina</div>
+      <div class="t2" id="pbi-t2">Requiere internet y una sesión de Microsoft con acceso al reporte.</div>
+    </div>
+    <iframe title="ReporteOlist" allowfullscreen></iframe>
+  </div>
+  <div class="pbi-bar">
+    <span class="estado" id="pbi-estado"><i></i>En espera</span>
+    <button type="button" id="pbi-recargar" title="Volver a cargar el tablero">↻ Recargar</button>
+    <button type="button" id="pbi-full" title="Ver el tablero a pantalla completa (Esc para salir)">⤢ Pantalla completa</button>
+    <a id="pbi-abrir" target="_blank" rel="noopener">Abrir en Power BI ↗</a>
+  </div>
+  <div class="source">Tablero interactivo del equipo en Power BI (Microsoft Fabric), construido con los mismos datos de Olist.</div>
+  <aside class="notes">Demo en vivo (1.5 min). Mostrar 2 o 3 vistas del tablero que refuercen lo anterior: dónde y cuándo se concentran los retrasos y su efecto en las reseñas. Para volver a la presentación: clic fuera del tablero (en el título) y →. Antes de presentar: iniciar sesión en Power BI en este mismo navegador (Chrome o Edge) y pasar una vez por esta lámina para comprobar que carga.</aside>
+</section>
+
+<!-- 7 · PREGUNTA -->
+<section class="slide" data-sec="Pregunta">
+  <div class="question">
+    <div class="small muted" style="letter-spacing:.16em;text-transform:uppercase;margin-bottom:22px">La pregunta clave</div>
+    <div class="q">¿Podemos identificar, <em>en el momento de la compra</em>, qué pedidos llegarán tarde?</div>
+    <div class="cols c3 frag" style="margin-top:60px;gap:40px">
+      <div class="princ" style="display:block"><div class="p"><h4>Sólo información del momento de la compra</h4><p>Nada que ocurra después (entrega, reseña, transportista).</p></div></div>
+      <div class="princ" style="display:block"><div class="p"><h4>Probado en el futuro</h4><p>Entrenar con el pasado, evaluar con meses que el modelo nunca vio.</p></div></div>
+      <div class="princ" style="display:block"><div class="p"><h4>Útil para operar</h4><p>Un score de riesgo por pedido que se pueda priorizar.</p></div></div>
+    </div>
+  </div>
+  <aside class="notes">30 s. Pausa. Leer la pregunta. Las tres condiciones son nuestro contrato de rigor.</aside>
+</section>
+
+<!-- 8 · ENFOQUE -->
+<section class="slide" data-sec="Enfoque">
+  <h1 class="action">Seguimos el ciclo completo de ciencia de datos: cada modelo pasó por su propia selección de variables y ajuste de hiperparámetros</h1>
+  <div class="flow">
+    <div class="st frag"><div class="num">01</div><h4>Limpieza</h4><p>9 tablas, label "tardío" por día, censura del final del periodo.</p></div><div class="ar frag">›</div>
+    <div class="st frag"><div class="num">02</div><h4>Exploración</h4><p>Costo en reseñas, oleadas, geografía (sólo con train).</p></div><div class="ar frag">›</div>
+    <div class="st frag"><div class="num">03</div><h4>Variables</h4><p><span data-v="n_base"></span> variables por pedido, todas conocidas al comprar.</p></div><div class="ar frag">›</div>
+    <div class="st frag"><div class="num">04</div><h4>Split temporal</h4><p>5 folds de ventana creciente + purga + test aparte.</p></div>
+  </div>
+  <div class="branch">
+    <div class="m frag" style="--c:var(--lr)"><h5>Regresión Logística</h5><p>Línea base explicable · RFECV por coeficientes → búsqueda aleatoria.</p></div>
+    <div class="m frag" style="--c:var(--rf)"><h5>Random Forest</h5><p>Bagging de árboles · RFECV por importancia → búsqueda aleatoria.</p></div>
+    <div class="m frag" style="--c:var(--xgb)"><h5>XGBoost</h5><p>Boosting de árboles · RFECV por importancia → búsqueda aleatoria.</p></div>
+    <div class="m frag" style="--c:var(--nn)"><h5>Red neuronal (Keras)</h5><p>MLP · conjuntos de variables candidatos → búsqueda de arquitectura.</p></div>
+  </div>
+  <div class="final frag"><div><b>05 · Selección</b> del mejor modelo con el K-Fold temporal (nunca con test)</div><div><b>06 · Prueba final</b> en test una sola vez: mejor modelo clásico vs. red neuronal</div></div>
+  <div class="source">Métrica de selección: PR-AUC promedio en validación; empate (&lt; 0.005) → gana el modelo más simple.</div>
+  <aside class="notes">1.5 min. Es el diagrama que propuso el profesor, implementado tal cual. Cada notebook del repositorio es una caja.</aside>
+</section>
+
+<!-- 9 · RIGOR -->
+<section class="slide" data-sec="Enfoque">
+  <h1 class="action">El diseño evita la fuga de información: el modelo sólo "ve" lo que la empresa sabría el día de la compra</h1>
+  <div class="chart" id="ch-timeline" style="margin-top:20px"></div>
+  <div class="princ">
+    <div class="p frag"><h4>Variables point-in-time</h4><p>El historial del vendedor o de la ruta sólo cuenta entregas cuyo resultado ya se conocía antes de la compra (verificado por fuerza bruta).</p></div>
+    <div class="p frag"><h4>Purga entre periodos</h4><p>Un pedido entrena sólo si su label ya se conocía cuando empieza la validación: se purgaron <span data-v="purgados"></span> pedidos antes del test.</p></div>
+    <div class="p frag"><h4>Test intocable</h4><p>Variables, hiperparámetros, umbral y modelo se eligieron sólo con los 5 folds. El test (<span data-v="n_test"></span> pedidos) se abrió una vez.</p></div>
+  </div>
+  <div class="source">Imputación y escalado se ajustan dentro de cada fold; el one-hot aprende las categorías sólo con train.</div>
+  <aside class="notes">1.5 min. Esto distingue un proyecto serio: sin purga, los últimos pedidos del entrenamiento tendrían etiquetas que en la vida real aún no se conocen.</aside>
+</section>
+
+<!-- 10 · DRIVERS -->
+<section class="slide" data-sec="Hallazgos">
+  <h1 class="action">El riesgo lo explican sobre todo la <em>promesa de entrega</em>, la <em>saturación reciente</em> del sistema y el historial de la ruta</h1>
+  <div class="cols c2b">
+    <div style="padding-top:18px">
+      <ul class="bul">
+        <li class="frag"><b>Promesa de entrega:</b> plazos prometidos largos o ajustados cambian la probabilidad de cumplir.</li>
+        <li class="frag"><b>Carga reciente:</b> si el sistema se está atrasando en los últimos 30 días (global o hacia el estado del cliente), el pedido nuevo también.</li>
+        <li class="frag"><b>Ruta y vendedor:</b> el historial de retrasos de la ruta estado→estado y del vendedor.</li>
+      </ul>
+      <div class="sowhat frag" style="margin-top:22px"><span class="lbl">So what</span>Son palancas <b>operables</b>: ajustar la fecha prometida en rutas de riesgo y monitorear la saturación en tiempo real.</div>
+    </div>
+    <div>
+      <div class="small muted" style="margin-bottom:6px" id="lbl-imp"></div>
+      <div class="chart" id="ch-importancia"></div>
+    </div>
+  </div>
+  <div class="source">Importancia normalizada del modelo final (notebook 06).</div>
+  <aside class="notes">1.5 min. Traducir cada variable a lenguaje de negocio.</aside>
+</section>
+
+<!-- 11 · COMPARACIÓN CV -->
+<section class="slide" data-sec="Modelos">
+  <h1 class="action" id="t-cv"></h1>
+  <div class="cols c2">
+    <div>
+      <div class="legend"><span><i style="background:var(--navy);border-radius:50%"></i>PR-AUC en validación (promedio ± desv. de 5 folds)</span><span><i style="background:#898781"></i>Azar</span></div>
+      <div class="chart" id="ch-cv"></div>
+    </div>
+    <div>
+      <table class="t frag" id="tb-cv"></table>
+      <div class="sowhat frag" style="margin-top:26px" id="sw-cv"></div>
+    </div>
+  </div>
+  <div class="source">PR-AUC = área bajo la curva precisión-recall; el azar obtiene la tasa de tardíos (<span data-v="azar_cv_txt"></span>). El sobreajuste se mide con la brecha de ROC-AUC train–validación (el PR-AUC depende de la tasa de tardíos de cada periodo).</div>
+  <aside class="notes">2 min. Explicar el gráfico: punto de color = validación, gris = train. La variación entre folds refleja las oleadas. Elegimos con esto, no con el test.</aside>
+</section>
+
+<!-- 12 · TEST -->
+<section class="slide" data-sec="Resultados">
+  <h1 class="action" id="t-test"></h1>
+  <div class="cols c2b" style="margin-top:30px">
+    <div>
+      <div class="cols" style="grid-template-columns:1fr 1fr;gap:30px;margin-top:0" id="hero-test"></div>
+      <div class="sowhat frag" style="margin-top:34px" id="sw-test"></div>
+    </div>
+    <div>
+      <div class="legend" id="lg-pr"></div>
+      <div class="chart" id="ch-prtest"></div>
+    </div>
+  </div>
+  <div class="source">Test: <span data-v="n_test"></span> pedidos de mayo–agosto 2018 (<span data-v="azar_test_txt"></span> tardíos). Umbral elegido en validación (F1 máximo), no en test.</div>
+  <aside class="notes">2 min. Mostrar que el resultado en test es coherente con el CV. Ser honestos: el test tiene menos retrasos que el train, por eso los valores absolutos de PR-AUC son menores; lo que importa es la mejora frente al azar.</aside>
+</section>
+
+<!-- 13 · VALOR DE NEGOCIO -->
+<section class="slide" data-sec="Valor">
+  <h1 class="action">Revisando sólo el <em>20 %</em> de los pedidos más riesgosos se anticipa el <em><span data-v="cap20"></span> %</em> de los retrasos</h1>
+  <div class="cols c2">
+    <div>
+      <div class="legend" id="lg-cap"></div>
+      <div class="chart" id="ch-captura"></div>
+    </div>
+    <div style="padding-top:20px">
+      <div class="small muted" style="letter-spacing:.12em;text-transform:uppercase">Simulador · mueve el umbral de revisión</div>
+      <div class="slider"><input type="range" id="sl-cap" min="1" max="60" value="20" aria-label="Porcentaje de pedidos revisados"></div>
+      <div class="readout" id="ro-cap"></div>
+      <table class="t" style="margin-top:26px" id="tb-cap"></table>
+      <p class="small" style="color:var(--ink-2);margin-top:16px;line-height:1.45" id="nota-cap"></p>
+    </div>
+  </div>
+  <div class="source">Curva de captura en test con el mejor modelo clásico. La diagonal es una revisión al azar.</div>
+  <aside class="notes">2 min. Usar el simulador en vivo: mover a 10 %, 20 %, 30 %. La operación elige cuántos pedidos puede atender; el modelo dice cuáles.</aside>
+</section>
+
+<!-- 14 · RECOMENDACIONES -->
+<section class="slide" data-sec="Recomendación">
+  <h1 class="action">Recomendamos un despliegue gradual en tres horizontes, empezando por acciones baratas de alto impacto en la experiencia</h1>
+  <div class="hz">
+    <div class="h frag"><div class="w">0–3 meses · Piloto</div><h4>Alertas proactivas al cliente</h4><p>Avisar o reprogramar la expectativa en el top 10–20 % de riesgo. Costo bajo: tolera falsas alarmas (umbral bajo, más recall).</p><p class="muted small">KPI: reseñas de 1★ en pedidos tardíos.</p></div>
+    <div class="h frag"><div class="w">3–6 meses · Operación</div><h4>Priorización con vendedores y transportistas</h4><p>Escalar los pedidos de mayor riesgo en rutas críticas; ajustar la fecha prometida donde el riesgo es sistemático (umbral alto, más precisión).</p><p class="muted small">KPI: tasa de retraso por ruta.</p></div>
+    <div class="h frag"><div class="w">6+ meses · Escala</div><h4>Modelo vivo y monitoreado</h4><p>Re-entrenamiento mensual con el mismo esquema temporal, la red neuronal como <b>modelo retador</b> (champion–challenger), monitoreo de drift y nuevas fuentes (transportista, clima, festivos).</p><p class="muted small">KPI: PR-AUC mensual vs. azar.</p></div>
+  </div>
+  <div class="source">El umbral de decisión es una palanca de negocio: se ajusta según el costo de una falsa alarma vs. un retraso no detectado.</div>
+  <aside class="notes">1.5 min. Recomendación concreta y escalonada. Mencionar que el umbral se elige con el negocio.</aside>
+</section>
+
+<!-- 15 · LIMITACIONES -->
+<section class="slide" data-sec="Recomendación">
+  <h1 class="action">Limitaciones conocidas y cómo las abordaríamos en la siguiente iteración</h1>
+  <div class="cols c2" style="margin-top:40px">
+    <ul class="bul">
+      <li class="r frag"><b>Cambio en el tiempo (drift):</b> el test tiene <span data-v="azar_test_txt"></span> de tardíos vs. <span data-v="tasa_train_txt"></span> en train; las métricas varían por periodo.</li>
+      <li class="r frag"><b>Sin datos de transportista, clima o huelgas:</b> causas externas que explican oleadas como la de marzo 2018.</li>
+      <li class="r frag"><b>La fecha prometida ya absorbe riesgo:</b> predecir sobre una estimación con colchón es intrínsecamente difícil.</li>
+      <li class="r frag"><b>Umbral fijo frágil:</b> el umbral elegido en validación marca demasiados pedidos en test; operar por capacidad (top <i>k</i> %) es más estable.</li>
+      <li class="r frag"><b>Optimismo del CV:</b> los mismos folds eligieron variables, hiperparámetros y umbral; por eso reportamos el test aparte.</li>
+    </ul>
+    <ul class="bul">
+      <li class="frag">Agregar fuentes externas (transportista, clima, calendario de festivos).</li>
+      <li class="frag">Validación anidada y calibración de probabilidades para el umbral de negocio.</li>
+      <li class="frag">Modelar el <b>número de días</b> de retraso (regresión) además de la probabilidad.</li>
+      <li class="frag">Medir el impacto real con un experimento A/B del piloto de alertas.</li>
+    </ul>
+  </div>
+  <div class="source">Ver notebooks 06 y el reporte técnico para el detalle.</div>
+  <aside class="notes">1 min. Mostrar madurez: conocemos los límites y tenemos plan.</aside>
+</section>
+
+<!-- 16 · CIERRE -->
+<section class="slide cover" data-sec="">
+  <svg class="lines" viewBox="0 0 640 900" aria-hidden="true" id="coverlines2"></svg>
+  <div class="inner" style="top:230px">
+    <div class="kicker">En una frase</div>
+    <h1 style="font-size:60px">Con lo que se sabe al comprar, podemos señalar <em>dónde</em> se concentrarán los retrasos y actuar antes</h1>
+    <p style="margin-top:30px">Gracias · Preguntas</p>
+  </div>
+  <div class="meta">Código reproducible: notebooks 01–06 · Reporte técnico (PDF) · Anexos a continuación</div>
+  <aside class="notes">Cierre (30 s). Repetir el mensaje principal y abrir a preguntas. Los anexos tienen el detalle técnico.</aside>
+</section>
+
+<!-- A1 · ANEXO: FOLDS -->
+<section class="slide" data-sec="Anexo">
+  <h1 class="action">Anexo A · Resultados por fold: la dificultad cambia con el periodo, no sólo con el modelo</h1>
+  <div class="chart" id="ch-folds" style="margin-top:26px"></div>
+  <div class="source">PR-AUC en validación por fold y modelo; línea gris punteada = azar del fold (% de tardíos).</div>
+</section>
+
+<!-- A2 · ANEXO: MATRIZ -->
+<section class="slide" data-sec="Anexo">
+  <h1 class="action">Anexo B · Matrices de confusión en test con el umbral elegido en validación</h1>
+  <div class="cols" style="grid-template-columns:1fr 1fr;gap:80px;margin-top:40px" id="cm-wrap"></div>
+  <div class="source">Filas = realidad, columnas = predicción. El umbral fijo elegido en validación marca más de la mitad de los pedidos de test porque la tasa de retraso bajó: por eso recomendamos operar por capacidad (top <i>k</i> %, lámina <span data-lamina-de="ch-captura">13</span>).</div>
+</section>
+
+<!-- A3 · ANEXO: HIPERPARÁMETROS -->
+<section class="slide" data-sec="Anexo">
+  <h1 class="action">Anexo C · Variables e hiperparámetros elegidos por modelo</h1>
+  <div id="hp-wrap" class="cols c2" style="margin-top:30px;gap:40px"></div>
+  <div class="source">RFECV con 5 folds temporales (paso 10 %); búsqueda aleatoria con los mismos folds, métrica PR-AUC.</div>
+</section>
+
+</div>
+
+<div id="notes"><h6>Notas del orador</h6><div id="notes-body"></div></div>
+<div id="timer">00:00</div>
+<div id="progress"></div>
+<div id="help">← → navegar · F pantalla completa · N notas · T cronómetro</div>
+<div id="pbi-hint">Estás usando el tablero · haz clic fuera de él para volver a navegar con ← →</div>
+<div class="tip" id="tip"></div>
+
+<script id="data" type="application/json">__DATA__</script>
+<script>
+(function(){
+"use strict";
+const D = JSON.parse(document.getElementById("data").textContent);
+const R = D.resultados, E = D.eda, S = D.split;
+const PRINT = /[?&]print/.test(location.search);
+const QA = /[?&]qa/.test(location.search);          // revisión: lámina completa sin animaciones
+const STATIC = PRINT || QA;
+if (STATIC) document.documentElement.classList.add("print");
+const NN = "Red Neuronal";
+const COLOR = {"Regresión Logística":"var(--lr)","Random Forest":"var(--rf)","XGBoost":"var(--xgb)","Red Neuronal":"var(--nn)"};
+const HEX = {"Regresión Logística":"#2a78d6","Random Forest":"#eb6834","XGBoost":"#1baf7a","Red Neuronal":"#eda100"};
+const CORTO = {"Regresión Logística":"Logística","Random Forest":"Random Forest","XGBoost":"XGBoost","Red Neuronal":"Red neuronal"};
+
+// ---------------------------------------------------------------- formato
+const nf = (x, d=0) => Number(x).toLocaleString("es-MX", {minimumFractionDigits:d, maximumFractionDigits:d});
+const pct = (x, d=1) => nf(x*100, d) + " %";
+const test = Object.fromEntries(R.test.map(r => [r.Modelo, r]));
+const cvc = Object.fromEntries(R.comparacion_cv.map(r => [r.Modelo, r]));
+const mejor = R.mejor_clasico;
+const cap = n => R.captura[mejor].find(r => Math.round(r["% pedidos revisados"]) === n);
+
+const V = {
+  pct12_t: E.reviews.pct_1_2_tardio, pct12_a_txt: nf(E.reviews.pct_1_2_a_tiempo,0) + " %",
+  pct1_t: nf(E.reviews.dist_estrellas.tardio[0],0), pct1_a: nf(E.reviews.dist_estrellas.a_tiempo[0],0),
+  pct5_t: nf(E.reviews.pct_5_tardio,0), pct5_a: nf(E.reviews.pct_5_a_tiempo,0),
+  score_a: nf(E.reviews.score_a_tiempo,1), score_t: nf(E.reviews.score_tardio,1),
+  cap20: cap(20)["% tardíos capturados"], lift_pr: test[mejor]["PR-AUC / azar"], mejor: mejor,
+  pedidos_k: E.pedidos/1000, tasa: E.tasa_tardios*100, tasa_txt: pct(E.tasa_tardios,1),
+  dias_antes: E.dias_antes_mediana, ret_med: E.dias_retraso_mediana_tardios,
+  n_base: D.n_base, purgados: nf(S.purgados), n_test: nf(R.n_test),
+  azar_cv_txt: pct(R.azar_cv,1), azar_test_txt: pct(R.azar_test,1), tasa_train_txt: nf(+S.train["% tardíos"],1) + " %",
+};
+document.querySelectorAll("[data-v]").forEach(el => {
+  const k = el.dataset.v; if (!(k in V)) return;
+  if (el.classList.contains("count")) { el.dataset.to = V[k]; el.textContent = nf(V[k], +el.dataset.dec) + (el.dataset.suf||""); }
+  else el.textContent = (typeof V[k] === "number") ? nf(V[k], 0) : V[k];
+});
+// "20 %" exacto en el título de captura
+document.querySelectorAll('[data-v="cap20"]:not(.count)').forEach(el => el.textContent = nf(V.cap20,0));
+
+// ---------------------------------------------------------------- utilidades SVG
+const NS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent){ const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function txt(parent, x, y, s, attrs={}){ const t = el("text", Object.assign({x, y, "font-size":14, fill:"#52514e"}, attrs), parent); t.textContent = s; return t; }
+const lin = (d0, d1, r0, r1) => v => r0 + (v - d0) / (d1 - d0) * (r1 - r0);
+function svg(container, w, h){ container.innerHTML = ""; const s = el("svg", {width:w, height:h, viewBox:`0 0 ${w} ${h}`}); container.appendChild(s); return s; }
+const tip = document.getElementById("tip");
+function hover(node, html){
+  node.style.cursor = "default";
+  node.addEventListener("mouseenter", () => { tip.innerHTML = html; tip.style.opacity = 1; });
+  node.addEventListener("mousemove", ev => { tip.style.left = ev.clientX + "px"; tip.style.top = ev.clientY + "px"; tip.style.position = "fixed"; });
+  node.addEventListener("mouseleave", () => tip.style.opacity = 0);
+}
+function delay(node, s){ node.style.animationDelay = s + "s"; return node; }
+function drawPath(path, dur=1.4, d=0){
+  if (STATIC) return path;
+  const L = path.getTotalLength(); path.style.strokeDasharray = L; path.style.strokeDashoffset = L;
+  path.style.animation = `draw ${dur}s ease ${d}s forwards`; return path;
+}
+function yAxis(s, y, ticks, x0, x1, fmt){
+  ticks.forEach(v => { el("line", {x1:x0, x2:x1, y1:y(v), y2:y(v), stroke:"#e1e0d9", "stroke-width":1}, s); txt(s, x0-10, y(v)+5, fmt(v), {"text-anchor":"end", "font-size":13, fill:"#898781"}); });
+}
+
+// ---------------------------------------------------------------- gráficas
+const CH = {};
+
+CH["ch-reviews"] = c => {
+  const W=820, H=470, m={l:56,r:10,t:20,b:44}; const s = svg(c, W, H);
+  const a = E.reviews.dist_estrellas.a_tiempo, t = E.reviews.dist_estrellas.tardio;
+  const y = lin(0, 70, H-m.b, m.t); yAxis(s, y, [0,20,40,60], m.l, W-m.r, v => v+" %");
+  const bw = (W-m.l-m.r)/5;
+  for (let i=0;i<5;i++){
+    const x0 = m.l + i*bw + bw*0.14, w = bw*0.34;
+    [[a[i], "#2a78d6", "A tiempo", 0], [t[i], "#e34948", "Tardío", 1]].forEach(([v, col, lab, j]) => {
+      const r = el("rect", {x:x0 + j*(w+2), y:y(v), width:w, height:y(0)-y(v), fill:col, rx:4}, s);
+      r.classList.add("g-bar"); delay(r, 0.08*i + 0.15*j); hover(r, `${i+1}★ · ${lab}: <b>${nf(v,1)} %</b>`);
+      if (i===0 || i===4) txt(s, x0 + j*(w+2) + w/2, y(v)-8, nf(v,0)+" %", {"text-anchor":"middle", "font-size":15, fill:"#0b0b0b", "font-weight":600});
+    });
+    txt(s, m.l + i*bw + bw/2, H-m.b+28, (i+1)+"★", {"text-anchor":"middle", "font-size":16, fill:"#52514e"});
+  }
+  el("line", {x1:m.l, x2:W-m.r, y1:y(0), y2:y(0), stroke:"#c3c2b7"}, s);
+};
+
+CH["ch-mensual"] = c => {
+  const W=1408, H=450, m={l:56,r:20,t:30,b:40}; const s = svg(c, W, H);
+  const M = E.mensual, n = M.mes.length;
+  const x = lin(0, n-1, m.l+20, W-m.r-20), y = lin(0, 21, H-m.b, m.t);
+  yAxis(s, y, [0,5,10,15,20], m.l, W-m.r, v => v+" %");
+  const iCut = M.mes.indexOf(S.fecha_corte.slice(0,7));
+  if (iCut >= 0){
+    el("rect", {x:x(iCut)-15, y:m.t, width:W-m.r-x(iCut)+15, height:H-m.b-m.t, fill:"#f5f4f0"}, s);
+    el("line", {x1:x(iCut)-15, x2:x(iCut)-15, y1:m.t, y2:H-m.b, stroke:"#52514e", "stroke-dasharray":"4 4"}, s);
+    txt(s, x(iCut)-5, m.t+18, "Periodo de prueba (test)", {"font-size":14, fill:"#52514e"});
+  }
+  M.mes.forEach((mm, i) => { if (i % 2 === 0) txt(s, x(i), H-m.b+24, mm.slice(2).replace("-","/"), {"text-anchor":"middle", "font-size":12.5, fill:"#898781"}); });
+  const d = M.tasa.map((v,i) => (i?"L":"M") + x(i) + "," + y(v*100)).join(" ");
+  drawPath(el("path", {d, fill:"none", stroke:"#e34948", "stroke-width":3, "stroke-linejoin":"round"}, s), 1.6);
+  M.tasa.forEach((v,i) => {
+    const p = el("circle", {cx:x(i), cy:y(v*100), r:5.5, fill:"#e34948", stroke:"#fff", "stroke-width":2}, s);
+    p.classList.add("g-pop"); delay(p, 0.06*i + 0.3);
+    const hit = el("circle", {cx:x(i), cy:y(v*100), r:16, fill:"transparent"}, s);
+    hover(hit, `${M.mes[i]} · <b>${nf(v*100,1)} %</b> tardíos · ${nf(M.pedidos[i])} pedidos`);
+  });
+  [["2017-11","Black Friday"],["2018-03","Pico: saturación"]].forEach(([mm, lab]) => {
+    const i = M.mes.indexOf(mm); if (i < 0) return;
+    const g = el("g", {}, s); g.classList.add("g-fade"); delay(g, 1.5);
+    txt(g, x(i), y(M.tasa[i]*100)-16, `${lab} · ${nf(M.tasa[i]*100,0)} %`, {"text-anchor":"middle", "font-size":15, fill:"#0b0b0b", "font-weight":600});
+  });
+};
+
+CH["ch-timeline"] = c => {
+  const W=1408, H=300, m={l:120,r:20,t:10,b:34}; const s = svg(c, W, H);
+  const P = s => new Date(s).getTime();
+  const t0 = P(S.folds[0]["Train desde"]), t1 = P(S.test.Hasta);
+  const x = lin(t0, t1, m.l, W-m.r);
+  const rows = S.folds.length + 1, rh = (H-m.t-m.b)/rows;
+  const seg = (row, a, b, col, d) => { const r = el("rect", {x:x(a), y:m.t+row*rh+rh*0.22, width:Math.max(2, x(b)-x(a)), height:rh*0.56, fill:col, rx:3}, s); r.classList.add("g-barx"); delay(r, d); return r; };
+  S.folds.forEach((f, k) => {
+    seg(k, P(f["Train desde"]), P(f["Train hasta"]), "#2a78d6", 0.12*k);
+    seg(k, P(f["Val desde"]), P(f["Val hasta"]), "#eb6834", 0.12*k + 0.35);
+    txt(s, m.l-14, m.t+k*rh+rh/2+5, "Fold " + f.Fold, {"text-anchor":"end", "font-size":14});
+    const hit = el("rect", {x:m.l, y:m.t+k*rh, width:W-m.l-m.r, height:rh, fill:"transparent"}, s);
+    hover(hit, `Fold ${f.Fold} · train ${nf(f["Filas train"])} pedidos (${f["% tardíos train"]} % tardíos) · validación ${nf(f["Filas val"])} (${f["% tardíos val"]} %)`);
+  });
+  const k = S.folds.length;
+  seg(k, P(S.train.Desde), P(S.train.Hasta), "#2a78d6", 0.9);
+  seg(k, P(S.test.Desde), P(S.test.Hasta), "#e34948", 1.25);
+  txt(s, m.l-14, m.t+k*rh+rh/2+5, "Modelo final", {"text-anchor":"end", "font-size":14, "font-weight":600, fill:"#0b0b0b"});
+  const lg = [["#2a78d6","Entrenamiento"],["#eb6834","Validación"],["#e34948","Test (una sola vez)"]];
+  lg.forEach(([col, lab], i) => { el("rect", {x:m.l + i*220, y:H-18, width:13, height:13, rx:2, fill:col}, s); txt(s, m.l + i*220 + 20, H-7, lab, {"font-size":14}); });
+};
+
+CH["ch-importancia"] = c => {
+  const items = Object.entries(R.importancia).slice(0, 10);
+  const W=760, H=470, m={l:330,r:60,t:6,b:6}; const s = svg(c, W, H);
+  const vmax = Math.max(...items.map(d => d[1]));
+  const x = lin(0, vmax, m.l, W-m.r), bh = (H-m.t-m.b)/items.length;
+  items.forEach(([k, v], i) => {
+    const r = el("rect", {x:m.l, y:m.t+i*bh+bh*0.18, width:x(v)-m.l, height:bh*0.64, rx:4, fill: HEX[mejor], "fill-opacity": i < 3 ? 1 : 0.4}, s);
+    r.classList.add("g-barx"); delay(r, 0.06*i);
+    txt(s, m.l-12, m.t+i*bh+bh/2+5, etiqueta(k), {"text-anchor":"end", "font-size":15, fill:"#0b0b0b"});
+    txt(s, x(v)+8, m.t+i*bh+bh/2+5, nf(v*100,1)+" %", {"font-size":14, fill:"#52514e"});
+    hover(r, `<b>${etiqueta(k)}</b><br>${k}`);
+  });
+};
+
+CH["ch-cv"] = c => {
+  const mods = R.comparacion_cv.slice().sort((a,b) => b["PR-AUC val (prom)"] - a["PR-AUC val (prom)"]);
+  const W=800, H=420, m={l:150,r:30,t:20,b:50}; const s = svg(c, W, H);
+  const vmax = Math.max(...mods.map(d => d["PR-AUC val (prom)"] + d["PR-AUC val (desv)"]));
+  const x = lin(0, Math.ceil(vmax*10)/10, m.l, W-m.r), rh = (H-m.t-m.b)/mods.length;
+  const ticks = []; for (let v=0; v<=Math.ceil(vmax*10)/10+1e-9; v+=0.1) ticks.push(+v.toFixed(1));
+  ticks.forEach(v => { el("line", {x1:x(v), x2:x(v), y1:m.t, y2:H-m.b, stroke:"#e1e0d9"}, s); txt(s, x(v), H-m.b+22, nf(v,1), {"text-anchor":"middle", "font-size":13, fill:"#898781"}); });
+  el("line", {x1:x(R.azar_cv), x2:x(R.azar_cv), y1:m.t, y2:H-m.b, stroke:"#898781", "stroke-dasharray":"4 4"}, s);
+  txt(s, x(R.azar_cv)+6, H-m.b-8, "azar", {"font-size":13, fill:"#898781"});
+  txt(s, (m.l+W-m.r)/2, H-6, "PR-AUC", {"text-anchor":"middle", "font-size":13, fill:"#898781"});
+  mods.forEach((d, i) => {
+    const cy = m.t + i*rh + rh/2, v = d["PR-AUC val (prom)"], sd = d["PR-AUC val (desv)"];
+    const g = el("g", {}, s); g.classList.add("g-fade"); delay(g, 0.15*i);
+    const bar = el("rect", {x:m.l, y:cy-3, width:x(v)-m.l, height:6, rx:3, fill:"#e1e0d9"}, g); bar.classList.add("g-barx"); delay(bar, 0.15*i);
+    el("line", {x1:x(Math.max(0,v-sd)), x2:x(v+sd), y1:cy, y2:cy, stroke:HEX[d.Modelo], "stroke-width":2}, g);
+    [v-sd, v+sd].forEach(e => el("line", {x1:x(Math.max(0,e)), x2:x(Math.max(0,e)), y1:cy-7, y2:cy+7, stroke:HEX[d.Modelo], "stroke-width":2}, g));
+    const p = el("circle", {cx:x(v), cy, r:10, fill:HEX[d.Modelo], stroke:"#fff", "stroke-width":2}, g);
+    txt(s, m.l-14, cy+5, CORTO[d.Modelo], {"text-anchor":"end", "font-size":16, fill:"#0b0b0b", "font-weight": d.Modelo===mejor ? 700 : 400});
+    hover(p, `<b>${d.Modelo}</b><br>PR-AUC val ${nf(v,3)} ± ${nf(sd,3)} · ${nf(d["PR-AUC val / azar"],1)}× el azar<br>ROC-AUC train ${nf(d["ROC-AUC train (prom)"],3)} · val ${nf(d["ROC-AUC val (prom)"],3)}`);
+  });
+};
+
+CH["ch-prtest"] = c => {
+  const W=720, H=430, m={l:56,r:20,t:14,b:46}; const s = svg(c, W, H);
+  const x = lin(0, 1, m.l, W-m.r), y = lin(0, 0.3, H-m.b, m.t+10);
+  yAxis(s, y, [0,0.1,0.2,0.3], m.l, W-m.r, v => nf(v,1));
+  [0,0.25,0.5,0.75,1].forEach(v => txt(s, x(v), H-m.b+22, nf(v*100,0)+" %", {"text-anchor":"middle", "font-size":13, fill:"#898781"}));
+  txt(s, (m.l+W-m.r)/2, H-4, "Recall (% de tardíos detectados)", {"text-anchor":"middle", "font-size":13, fill:"#898781"});
+  txt(s, 0, 0, "Precisión", {"font-size":13, fill:"#898781", "text-anchor":"middle", transform:`translate(12,${(m.t+H-m.b)/2}) rotate(-90)`});
+  el("line", {x1:m.l, x2:W-m.r, y1:y(R.azar_test), y2:y(R.azar_test), stroke:"#898781", "stroke-dasharray":"4 4"}, s);
+  txt(s, W-m.r, y(R.azar_test)-8, "azar", {"text-anchor":"end", "font-size":13, fill:"#898781"});
+  Object.keys(R.curva_pr_test).forEach((n, j) => {
+    const cv = R.curva_pr_test[n]; const pts = [];
+    for (let i=0;i<cv.recall.length;i++){ if (cv.recall[i] >= 0.005) pts.push([x(cv.recall[i]), y(Math.min(cv.precision[i], 0.3))]); }
+    const d = pts.map((p,i) => (i?"L":"M") + p[0] + "," + p[1]).join(" ");
+    drawPath(el("path", {d, fill:"none", stroke:HEX[n], "stroke-width":2.5, "stroke-linejoin":"round"}, s), 1.4, 0.2*j);
+  });
+};
+
+CH["ch-captura"] = c => {
+  const W=780, H=450, m={l:60,r:20,t:14,b:50}; const s = svg(c, W, H);
+  const x = lin(0, 100, m.l, W-m.r), y = lin(0, 100, H-m.b, m.t);
+  yAxis(s, y, [0,25,50,75,100], m.l, W-m.r, v => v+" %");
+  [0,20,40,60,80,100].forEach(v => txt(s, x(v), H-m.b+22, v+" %", {"text-anchor":"middle", "font-size":13, fill:"#898781"}));
+  txt(s, (m.l+W-m.r)/2, H-6, "% de pedidos revisados (de mayor a menor riesgo)", {"text-anchor":"middle", "font-size":13, fill:"#898781"});
+  el("line", {x1:x(0), y1:y(0), x2:x(100), y2:y(100), stroke:"#898781", "stroke-dasharray":"4 4"}, s);
+  const orden = [mejor, NN].filter(n => R.curva_captura[n]);
+  orden.forEach((n, j) => {
+    const cv = R.curva_captura[n];
+    const d = cv.map((v,i) => (i?"L":"M") + x(i) + "," + y(v)).join(" ");
+    drawPath(el("path", {d, fill:"none", stroke:HEX[n], "stroke-width": n===mejor ? 3 : 2, opacity: n===mejor ? 1 : 0.8}, s), 1.4, 0.2*j);
+  });
+  const guide = el("line", {stroke:"#051c2c", "stroke-width":1, "stroke-dasharray":"2 3"}, s);
+  const dot = el("circle", {r:8, fill:HEX[mejor], stroke:"#fff", "stroke-width":2.5}, s);
+  const sl = document.getElementById("sl-cap"), ro = document.getElementById("ro-cap");
+  function upd(){
+    const k = +sl.value, v = R.curva_captura[mejor][k];
+    guide.setAttribute("x1", x(k)); guide.setAttribute("x2", x(k)); guide.setAttribute("y1", y(0)); guide.setAttribute("y2", y(v));
+    dot.setAttribute("cx", x(k)); dot.setAttribute("cy", y(v));
+    ro.innerHTML = `Revisando el <b>${k} %</b> de los pedidos se anticipa el <b>${nf(v,0)} %</b> de los retrasos: <b>${nf(v/k,1)}×</b> lo que lograría una revisión al azar.`;
+  }
+  sl.oninput = upd; upd();
+};
+
+CH["ch-folds"] = c => {
+  const W=1408, H=540, m={l:60,r:20,t:44,b:50}; const s = svg(c, W, H);
+  const mods = Object.keys(R.cv_por_fold), F = R.cv_por_fold[mods[0]].length;
+  const vmax = Math.max(...mods.flatMap(n => R.cv_por_fold[n].map(r => r["PR-AUC val"])));
+  const y = lin(0, Math.ceil(vmax*10)/10, H-m.b, m.t); const ticks=[]; for (let v=0; v<=Math.ceil(vmax*10)/10+1e-9; v+=0.1) ticks.push(+v.toFixed(1));
+  yAxis(s, y, ticks, m.l, W-m.r, v => nf(v,1));
+  const gw = (W-m.l-m.r)/F, bw = gw*0.7/mods.length;
+  for (let f=0; f<F; f++){
+    const gx = m.l + f*gw + gw*0.15;
+    mods.forEach((n, j) => {
+      const v = R.cv_por_fold[n][f]["PR-AUC val"];
+      const r = el("rect", {x:gx + j*bw, y:y(v), width:bw-2, height:y(0)-y(v), rx:4, fill:HEX[n]}, s);
+      r.classList.add("g-bar"); delay(r, 0.05*f + 0.03*j); hover(r, `Fold ${f+1} · ${n}: <b>${nf(v,3)}</b>`);
+    });
+    const az = R.cv_por_fold[mods[0]][f]["% tardíos val"]/100;
+    el("line", {x1:gx-4, x2:gx+mods.length*bw+2, y1:y(az), y2:y(az), stroke:"#52514e", "stroke-dasharray":"4 3", "stroke-width":1.5}, s);
+    txt(s, m.l + f*gw + gw/2, H-m.b+24, `Fold ${f+1} · ${nf(az*100,1)} % tardíos`, {"text-anchor":"middle", "font-size":14});
+  }
+  mods.forEach((n, j) => { el("rect", {x:m.l + j*190, y:2, width:13, height:13, rx:2, fill:HEX[n]}, s); txt(s, m.l + j*190 + 20, 13, CORTO[n], {"font-size":14}); });
+};
+
+// ---------------------------------------------------------------- textos dependientes de resultados
+function etiqueta(k){
+  const L = {
+    estimated_delivery_days:"Días de entrega prometidos", global_late_30d:"Retrasos del sistema (30 días)",
+    estado_late_30d:"Retrasos hacia el estado (30 días)", global_n_30d:"Entregas del sistema (30 días)",
+    pedidos_ult_7d:"Pedidos de los últimos 7 días", seller_late_rate:"Historial de retrasos del vendedor",
+    seller_n_prev:"Pedidos previos del vendedor", ruta_late_rate:"Historial de retrasos de la ruta",
+    ruta_n_prev:"Pedidos previos de la ruta", avg_distance_km:"Distancia vendedor–cliente",
+    max_distance_km:"Distancia máxima", avg_dias_limite_envio:"Plazo del vendedor para despachar",
+    min_dias_limite_envio:"Plazo mínimo para despachar", total_freight:"Flete total", freight_ratio:"Flete / precio",
+    total_price:"Precio total", total_payment:"Pago total", max_installments:"Número de cuotas",
+    avg_product_weight:"Peso promedio", max_product_weight:"Peso máximo", same_state:"Vendedor y cliente en el mismo estado",
+    avg_product_length:"Largo del producto", avg_product_height:"Alto del producto", avg_product_width:"Ancho del producto",
+    total_items:"Número de ítems", n_seller_states:"Estados de vendedores",
+  };
+  if (L[k]) return L[k];
+  let m;
+  if ((m = k.match(/^customer_state_(\w+)$/))) return "Cliente en " + m[1];
+  if ((m = k.match(/^seller_state_(\w+)$/))) return "Vendedor en " + m[1];
+  if ((m = k.match(/^main_category_(.+)$/))) return "Categoría: " + m[1].replace(/_/g," ");
+  if ((m = k.match(/^purchase_weekday_(\d)$/))) return "Compra en " + ["lunes","martes","miércoles","jueves","viernes","sábado","domingo"][+m[1]];
+  if ((m = k.match(/^franja_horaria_(\w+)$/))) return "Compra en la " + m[1].replace("manana","mañana");
+  if ((m = k.match(/^main_payment_type_(\w+)$/))) return "Pago: " + m[1].replace(/_/g," ");
+  return k.replace(/_/g, " ");
+}
+
+(function textos(){
+  const ord = R.comparacion_cv.slice().sort((a,b) => b["PR-AUC val (prom)"] - a["PR-AUC val (prom)"]);
+  const bestCv = ord[0];
+  const nnCv = cvc[NN], mCv = cvc[mejor];
+  const tCv = document.getElementById("t-cv");
+  const clas = ["Regresión Logística","Random Forest","XGBoost"];
+  const prs = clas.map(m => cvc[m]["PR-AUC val (prom)"]);
+  const clasEmpatan = Math.max(...prs) - Math.min(...prs) < 0.01;
+  const nnGana = nnCv["PR-AUC val (prom)"] > mCv["PR-AUC val (prom)"] + 0.005;
+  const liftClas = clas.reduce((a,m) => a + cvc[m]["PR-AUC val / azar"], 0) / clas.length;
+  tCv.innerHTML = (clasEmpatan
+      ? `En validación los tres modelos clásicos empatan (≈ ${nf(liftClas,1)}× el azar)`
+      : `En validación, <em>${mejor}</em> es el mejor modelo clásico (${nf(mCv["PR-AUC val / azar"],1)}× el azar)`) +
+    (nnGana ? ` y la <em>red neuronal</em> destaca con ${nf(nnCv["PR-AUC val / azar"],1)}×` : `; la red neuronal no los supera`);
+  const tb = document.getElementById("tb-cv");
+  tb.innerHTML = `<tr><th>Modelo</th><th>Vars</th><th>PR-AUC val</th><th>× azar</th><th>ROC-AUC val</th><th>Brecha ROC<br>train–val</th></tr>` +
+    ord.map(d => `<tr class="${d.Modelo===R.ganador_cv?'win':''}"><td><span class="dot" style="background:${HEX[d.Modelo]}"></span>${CORTO[d.Modelo]}</td><td>${nf(d.Variables)}</td><td>${nf(d["PR-AUC val (prom)"],3)} <span class="muted small">± ${nf(d["PR-AUC val (desv)"],3)}</span></td><td>${nf(d["PR-AUC val / azar"],1)}×</td><td>${nf(d["ROC-AUC val (prom)"],3)}</td><td>${nf(d["Brecha ROC train-val"],3)}</td></tr>`).join("");
+  document.getElementById("sw-cv").innerHTML = `<span class="lbl">Decisión (regla fijada de antemano)</span>` +
+    (clasEmpatan ? `Entre los clásicos gana el más simple: <b>${mejor}</b>. ` : `Mejor clásico: <b>${mejor}</b>. `) +
+    `Pasan a la prueba final ${CORTO[mejor].toLowerCase()} y la red neuronal; el modelo recomendado por el CV es <b>${CORTO[R.ganador_cv].toLowerCase()}</b>. ` +
+    `Random Forest y XGBoost muestran la mayor brecha train–val (sobreajuste).`;
+  const tM = test[mejor], tN = test[NN];
+  const dif = tN["PR-AUC"] - tM["PR-AUC"];
+  const tt = document.getElementById("t-test");
+  if (Math.abs(dif) < 0.01) tt.innerHTML = `En meses que nunca vio, la ventaja de la red <em class="late">desaparece</em>: ambos modelos ordenan el riesgo <em>≈ ${nf((tM["PR-AUC / azar"]+tN["PR-AUC / azar"])/2,1)}× mejor que el azar</em>`;
+  else { const w = dif > 0 ? NN : mejor; tt.innerHTML = `En meses que nunca vio, <em>${CORTO[w].toLowerCase()}</em> es el mejor modelo: ordena el riesgo <em>${nf(test[w]["PR-AUC / azar"],1)}× mejor que el azar</em>`; }
+  const c20 = n => R.captura[n].find(r => Math.round(r["% pedidos revisados"]) === 20)["% tardíos capturados"];
+  document.getElementById("hero-test").innerHTML = [mejor, NN].map(n => `<div class="kpi frag" style="border-color:${HEX[n]}">
+     <div class="small" style="color:${HEX[n]};font-weight:700;letter-spacing:.06em;text-transform:uppercase">${CORTO[n]}</div>
+     <div class="n" style="margin-top:8px"><span class="count" data-to="${test[n]["PR-AUC / azar"]}" data-dec="1" data-suf="×">${nf(test[n]["PR-AUC / azar"],1)}×</span></div>
+     <div class="t">el azar · PR-AUC ${nf(test[n]["PR-AUC"],3)} vs. ${nf(R.azar_test,3)}<br>ROC-AUC ${nf(test[n]["ROC-AUC"],3)}<br>Top 20 % de riesgo: <b>${nf(c20(n),0)} %</b> de los retrasos</div></div>`).join("");
+  document.getElementById("sw-test").innerHTML = `<span class="lbl">Lectura</span>${CORTO[mejor]} pasa de ${nf(mCv["PR-AUC val / azar"],1)}× el azar en validación a <b>${nf(tM["PR-AUC / azar"],1)}×</b> en test: generaliza bien. ` +
+    `La red baja de ${nf(nnCv["PR-AUC val / azar"],1)}× a ${nf(tN["PR-AUC / azar"],1)}×. ` +
+    (Math.abs(dif) < 0.01 ? `Con desempeño equivalente, conviene el modelo <b>más simple y explicable</b>.` : ``);
+  const imp = R.resumen_modelos[mejor];
+  document.getElementById("lbl-imp").textContent = mejor === "Regresión Logística"
+    ? "Peso relativo de cada variable · |coeficiente| estandarizado · Regresión Logística" : "Importancia relativa de las variables · " + mejor;
+  const cf = R.confusion[mejor], marcados = (cf.tp + cf.fp) / (cf.tp + cf.fp + cf.tn + cf.fn);
+  document.getElementById("nota-cap").innerHTML = `<b>¿Por qué operar por capacidad?</b> El umbral fijo de probabilidad elegido en validación marcaría el ${nf(marcados*100,0)} % de los pedidos de test (la tasa de retraso bajó a ${pct(R.azar_test,1)}). Fijar cuántos pedidos se revisan es estable aunque el nivel de riesgo cambie.`;
+  document.getElementById("lg-pr").innerHTML = [mejor, NN].map(n => `<span><i style="background:${HEX[n]}"></i>${CORTO[n]}</span>`).join("") + `<span><i style="background:#898781"></i>Azar</span>`;
+  document.getElementById("lg-cap").innerHTML = document.getElementById("lg-pr").innerHTML;
+  // tabla captura
+  document.getElementById("tb-cap").innerHTML = `<tr><th>% revisado</th><th>% tardíos capturados</th><th>Precisión</th><th>× azar</th></tr>` +
+    R.captura[mejor].map(r => `<tr><td>${nf(r["% pedidos revisados"],0)} %</td><td>${nf(r["% tardíos capturados"],1)} %</td><td>${nf(r.Precision*100,1)} %</td><td>${nf(r.Lift,1)}×</td></tr>`).join("");
+  // matrices de confusión
+  document.getElementById("cm-wrap").innerHTML = Object.entries(R.confusion).map(([n, c]) => {
+    const tot = c.tn + c.fp + c.fn + c.tp;
+    const cell = (v, lab, strong) => `<td style="padding:22px 18px;text-align:center;background:${strong};border:2px solid #fff"><div style="font-family:var(--serif);font-size:38px;color:#051c2c">${nf(v)}</div><div class="small muted">${lab} · ${nf(v/tot*100,1)} %</div></td>`;
+    return `<div><div style="font-weight:700;color:${HEX[n]};margin-bottom:12px;font-size:18px">${n} · umbral ${nf(R.resumen_modelos[n].umbral,2)}</div>
+      <table style="border-collapse:collapse;width:100%"><tr><td></td><th class="small muted">Pred. a tiempo</th><th class="small muted">Pred. tardío</th></tr>
+      <tr><th class="small muted" style="text-align:right;padding-right:10px">Real a tiempo</th>${cell(c.tn,"VN","#eef5fd")}${cell(c.fp,"FP","#f5f4f0")}</tr>
+      <tr><th class="small muted" style="text-align:right;padding-right:10px">Real tardío</th>${cell(c.fn,"FN","#f5f4f0")}${cell(c.tp,"VP","#fbe3e3")}</tr></table>
+      <div class="small" style="margin-top:12px;color:#52514e">Detecta ${nf(c.tp/(c.tp+c.fn)*100,0)} % de los tardíos; ${nf(c.tp/(c.tp+c.fp)*100,0)} % de sus alertas son retrasos reales.</div></div>`;
+  }).join("");
+  // hiperparámetros
+  document.getElementById("hp-wrap").innerHTML = Object.entries(R.resumen_modelos).map(([n, r]) => {
+    const p = D.params[n] || {};
+    const rows = Object.entries(p).map(([k, v]) => `<tr><td>${k.replace("modelo__","")}</td><td>${typeof v === "number" ? nf(v, Math.abs(v) < 1 && v !== 0 ? 4 : (Number.isInteger(v)?0:3)) : Array.isArray(v) ? "(" + v.join(", ") + ")" : v}</td></tr>`).join("");
+    return `<div><div style="font-weight:700;color:${HEX[n]};font-size:17px;margin-bottom:6px">${n} · ${r.n_variables} variables · PR-AUC val ${nf(r.pr_auc_val_prom,3)}</div><table class="t" style="font-size:14px">${rows}</table></div>`;
+  }).join("");
+})();
+
+// ---------------------------------------------------------------- portada (líneas decorativas: oleadas de retraso)
+["coverlines","coverlines2"].forEach(id => {
+  const s = document.getElementById(id); if (!s) return;
+  const M = E.mensual.tasa;
+  for (let k=0; k<14; k++){
+    const pts = M.map((v,i) => [i/(M.length-1)*640, 820 - k*48 - v*900*(0.35 + k*0.05)]);
+    const d = pts.map((p,i) => (i?"L":"M") + p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ");
+    const p = el("path", {d, fill:"none", stroke: k===5 ? "#e34948" : "#8fc1ff", "stroke-width": k===5 ? 2.5 : 1, opacity: k===5 ? 0.9 : 0.18 + k*0.015}, s);
+    if (k === 5) drawPath(p, 2.2, 0.4);
+  }
+});
+
+// ---------------------------------------------------------------- motor de diapositivas
+const slides = [...document.querySelectorAll(".slide")];
+const secs = [...new Set(slides.map(s => s.dataset.sec).filter(x => x && x !== "Anexo"))];
+slides.forEach((s, i) => {
+  if (!s.classList.contains("cover")) {
+    const tr = document.createElement("div"); tr.className = "tracker";
+    tr.innerHTML = secs.map(x => `<span class="${x===s.dataset.sec?'on':''}">${x}</span>`).join("") + (s.dataset.sec==="Anexo" ? `<span class="on">Anexo</span>` : "");
+    s.prepend(tr);
+    const pn = document.createElement("div"); pn.className = "pagenum"; pn.textContent = (i+1); s.appendChild(pn);
+  }
+});
+// referencias "lámina N" que se calculan solas (por si se agregan o quitan láminas)
+document.querySelectorAll("[data-lamina-de]").forEach(r => {
+  const obj = document.getElementById(r.dataset.laminaDe), k = obj ? slides.indexOf(obj.closest(".slide")) : -1;
+  if (k >= 0) r.textContent = k + 1;
+});
+let cur = 0, step = 0;
+const frags = s => [...s.querySelectorAll(".frag")];
+function countUp(root){
+  root.querySelectorAll(".count").forEach(c => {
+    if (c.closest(".frag") && !c.closest(".frag").classList.contains("on")) return;
+    if (c.dataset.done === String(cur)) return; c.dataset.done = String(cur);
+    const to = +c.dataset.to, dec = +c.dataset.dec || 0, suf = c.dataset.suf || "";
+    if (STATIC) { c.textContent = nf(to, dec) + suf; return; }
+    const t0 = performance.now(), dur = 1100;
+    (function f(t){ const k = Math.min(1, (t - t0)/dur), e = 1 - Math.pow(1-k, 3); c.textContent = nf(to*e, dec) + suf; if (k < 1) requestAnimationFrame(f); })(t0);
+  });
+}
+function renderCharts(s){ s.querySelectorAll(".chart[id]").forEach(c => { if (CH[c.id]) CH[c.id](c); }); }
+function show(i, st=0){
+  i = Math.max(0, Math.min(slides.length-1, i));
+  slides.forEach((s, k) => { s.classList.toggle("active", k===i); s.classList.toggle("past", k<i); });
+  const changed = i !== cur || !slides[i].dataset.seen; cur = i;
+  const fs = frags(slides[i]); step = st < 0 ? fs.length : st;
+  fs.forEach((f, k) => f.classList.toggle("on", k < step));
+  if (changed){ slides[i].dataset.seen = 1; slides[i].querySelectorAll(".count").forEach(c => delete c.dataset.done); renderCharts(slides[i]); }
+  countUp(slides[i]);
+  if (pbiLamina >= 0 && i >= pbiLamina - 2) pbiCargar();   // precarga dos láminas antes
+  document.getElementById("progress").style.width = ((i+1)/slides.length*100) + "%";
+  const nt = slides[i].querySelector("aside.notes"); document.getElementById("notes-body").textContent = nt ? nt.textContent : "";
+  history.replaceState(null, "", "#" + (i+1));
+}
+function next(){ const fs = frags(slides[cur]); if (step < fs.length){ fs[step].classList.add("on"); step++; countUp(slides[cur]); } else if (cur < slides.length-1) show(cur+1, 0); }
+function prev(){ if (step > 0){ step--; frags(slides[cur])[step].classList.remove("on"); } else if (cur > 0) show(cur-1, -1); }
+function fit(){ const st = document.getElementById("stage"); const k = Math.min(innerWidth/1600, innerHeight/900); st.style.transform = `translate(-50%,-50%) scale(${k})`; }
+// ---------------------------------------------------------------- tablero de Power BI
+const pbi = document.querySelector(".pbi");
+const pbiLamina = pbi ? slides.indexOf(pbi.closest(".slide")) : -1;
+const pbiFrame = pbi ? pbi.querySelector("iframe") : null;
+let pbiPedido = false, pbiReloj = null, ultimoFoco = 0;
+function pbiEstado(texto, color){ document.getElementById("pbi-estado").innerHTML = `<i style="background:${color}"></i>${texto}`; }
+function pbiMensaje(t1, t2){ document.getElementById("pbi-t1").textContent = t1; document.getElementById("pbi-t2").textContent = t2; }
+function pbiCargar(forzar){
+  if (!pbi || STATIC || (pbiPedido && !forzar)) return;
+  if (!navigator.onLine){
+    pbi.dataset.estado = "offline"; pbiEstado("Sin conexión", "#e34948");
+    pbiMensaje("Sin conexión a internet", "El tablero de Power BI necesita internet. Conéctate y pulsa ↻ Recargar." + (D.pbi_poster ? " Mientras tanto se muestra una captura." : ""));
+    return;
+  }
+  pbiPedido = true; pbi.classList.remove("listo"); pbi.dataset.estado = "cargando";
+  pbiEstado("Cargando…", "#eda100");
+  pbiMensaje("Cargando el tablero de Power BI…", "Si aparece el inicio de sesión, entra con la cuenta de Microsoft que tiene acceso al reporte.");
+  clearTimeout(pbiReloj);
+  pbiReloj = setTimeout(() => { if (!pbi.classList.contains("listo")) { pbiEstado("Tarda en cargar", "#eda100"); pbiMensaje("El tablero está tardando", "Revisa la conexión o pulsa ↻ Recargar. También puedes abrirlo en una pestaña con «Abrir en Power BI»."); } }, 25000);
+  pbiFrame.onload = null; pbiFrame.removeAttribute("src");
+  setTimeout(() => {
+    pbiFrame.onload = () => { clearTimeout(pbiReloj); pbi.classList.add("listo"); pbi.dataset.estado = "listo"; pbiEstado("En vivo", "#006300"); };
+    pbiFrame.src = pbi.dataset.src;
+  }, forzar ? 60 : 0);
+}
+if (pbi) {
+  document.getElementById("pbi-abrir").href = pbi.dataset.src;
+  if (D.pbi_poster) pbi.querySelector(".ph").style.backgroundImage =
+    (STATIC ? "" : "linear-gradient(rgba(245,244,240,.86),rgba(245,244,240,.86)),") + `url(${D.pbi_poster})`;
+  if (STATIC) {
+    // PDF / revisión: no se carga el iframe (pide sesión); se muestra la captura o una tarjeta
+    pbi.dataset.estado = "estatico"; pbiFrame.remove();
+    if (D.pbi_poster) { pbi.querySelector(".ph").innerHTML = ""; pbi.insertAdjacentHTML("beforeend", `<div class="cap">Captura del tablero · versión interactiva en la presentación HTML</div>`); }
+    else pbiMensaje("Tablero interactivo de Power BI", "Se muestra en vivo en la versión HTML de la presentación (requiere internet y sesión de Microsoft).");
+  }
+  document.getElementById("pbi-recargar").addEventListener("click", e => { e.currentTarget.blur(); pbiCargar(true); });
+  document.getElementById("pbi-full").addEventListener("click", e => { e.currentTarget.blur(); pbi.requestFullscreen && pbi.requestFullscreen(); });
+  addEventListener("online", () => { if (pbi.dataset.estado === "offline" && cur >= pbiLamina - 2) pbiCargar(true); });
+  addEventListener("offline", () => { if (!pbi.classList.contains("listo")) pbiCargar(true); });
+  // Al hacer clic dentro del tablero, el teclado se va al iframe: avisarlo y no avanzar con el clic que lo devuelve
+  addEventListener("blur", () => setTimeout(() => { if (document.activeElement === pbiFrame) document.body.classList.add("en-tablero"); }, 0));
+  addEventListener("focus", () => { if (document.body.classList.contains("en-tablero")) ultimoFoco = performance.now(); document.body.classList.remove("en-tablero"); });
+}
+
+let t0 = null, timerOn = false;
+setInterval(() => { if (!timerOn) return; const s = Math.floor((Date.now()-t0)/1000); document.getElementById("timer").textContent = String(Math.floor(s/60)).padStart(2,"0") + ":" + String(s%60).padStart(2,"0") + " / 20:00"; }, 500);
+addEventListener("keydown", e => {
+  if (e.target.tagName === "INPUT") { if (["ArrowLeft","ArrowRight"].includes(e.key)) return; }
+  // con el tablero a pantalla completa no se cambia de lámina (sólo Esc / F para salir)
+  if (document.fullscreenElement && document.fullscreenElement !== document.documentElement && !["f","F"].includes(e.key)) return;
+  if (["ArrowRight","PageDown"," ","Enter"].includes(e.key)) { e.preventDefault(); next(); }
+  else if (["ArrowLeft","PageUp","Backspace"].includes(e.key)) { e.preventDefault(); prev(); }
+  else if (e.key === "Home") show(0); else if (e.key === "End") show(slides.length-1);
+  else if (e.key === "f" || e.key === "F") { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); }
+  else if (e.key === "n" || e.key === "N") document.getElementById("notes").classList.toggle("on");
+  else if (e.key === "t" || e.key === "T") { timerOn = !timerOn; if (timerOn && !t0) t0 = Date.now(); document.getElementById("timer").classList.toggle("on", timerOn); }
+});
+let tx = null;
+addEventListener("touchstart", e => tx = e.touches[0].clientX, {passive:true});
+addEventListener("touchend", e => { if (tx === null) return; const dx = e.changedTouches[0].clientX - tx; if (Math.abs(dx) > 50) (dx < 0 ? next : prev)(); tx = null; });
+document.getElementById("stage").addEventListener("click", e => {
+  if (e.target.closest("input,table,.chart,.pbi,.pbi-bar")) return;
+  if (performance.now() - ultimoFoco < 500) return;   // ese clic sólo sacó el foco del tablero
+  next();
+});
+addEventListener("resize", fit);
+
+if (PRINT) {
+  slides.forEach(s => { s.classList.add("active"); renderCharts(s); frags(s).forEach(f => f.classList.add("on")); s.querySelectorAll(".count").forEach(c => c.textContent = nf(+c.dataset.to, +c.dataset.dec||0) + (c.dataset.suf||"")); });
+  document.getElementById("stage").style.transform = "none";
+} else {
+  fit();
+  const h = parseInt(location.hash.slice(1)); show(isNaN(h) ? 0 : h-1, QA ? -1 : 0);
+  const help = document.getElementById("help"); help.style.opacity = .9; setTimeout(() => help.style.opacity = 0, 4000);
+}
+})();
+</script>
+</body>
+</html>

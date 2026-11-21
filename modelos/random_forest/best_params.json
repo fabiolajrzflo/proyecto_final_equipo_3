@@ -1,0 +1,8 @@
+{
+  "modelo__n_estimators": 200,
+  "modelo__min_samples_leaf": 100,
+  "modelo__max_samples": 0.8,
+  "modelo__max_features": "sqrt",
+  "modelo__max_depth": 12,
+  "modelo__class_weight": "balanced_subsample"
+}

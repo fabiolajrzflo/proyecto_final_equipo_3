@@ -1,0 +1,16 @@
+{
+  "modelo": "XGBoost",
+  "n_variables": 35,
+  "umbral": 0.15103565156459808,
+  "pr_auc_val_prom": 0.15744656224449907,
+  "pr_auc_val_desv": 0.08848742437921792,
+  "pr_auc_train_prom": 0.2536224449321029,
+  "roc_auc_val_prom": 0.6436577737056622,
+  "roc_auc_train_prom": 0.8414445089928488,
+  "pr_auc_todas_vars": 0.14617600954353613,
+  "pr_auc_rfecv": 0.15497348429015942,
+  "pr_auc_busqueda": 0.15744656224449907,
+  "n_variables_total": 105,
+  "segundos_rfecv": 10.889310121536255,
+  "segundos_busqueda": 31.162525177001953
+}

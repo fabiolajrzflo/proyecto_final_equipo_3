@@ -1,0 +1,16 @@
+{
+  "modelo": "Random Forest",
+  "n_variables": 105,
+  "umbral": 0.4094139934337297,
+  "pr_auc_val_prom": 0.1577823818322614,
+  "pr_auc_val_desv": 0.09074892461304415,
+  "pr_auc_train_prom": 0.2676201324004581,
+  "roc_auc_val_prom": 0.6596015466023292,
+  "roc_auc_train_prom": 0.8667096976086992,
+  "pr_auc_todas_vars": 0.15390940326486507,
+  "pr_auc_rfecv": 0.15390940326486507,
+  "pr_auc_busqueda": 0.1577823818322614,
+  "n_variables_total": 105,
+  "segundos_rfecv": 31.841373205184937,
+  "segundos_busqueda": 138.30426812171936
+}
